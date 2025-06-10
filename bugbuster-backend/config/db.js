@@ -1,20 +1,8 @@
-// (A) LOAD DB MODULE
-const mysql = require("mysql");
+import { Sequelize } from 'sequelize';
 
-// (B) CREATE CONNECTION - CHANGE TO YOUR OWN !
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "test"
-});
-db.connect(err => {
-  if (err) { throw err; }
-  console.log("DB connection OK");
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: './database.sqlite' // Spécifiez le chemin où votre base de données SQLite sera stockée.
 });
 
-// (C) QUERY
-db.query("SELECT * FROM `users`", (err, results) => {
-  if (err) { throw err; }
-  console.log(results);
-});
+export default sequelize;
