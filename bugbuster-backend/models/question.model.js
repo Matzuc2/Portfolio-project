@@ -1,19 +1,32 @@
-import sequelize from '../config/db';
-import { DataTypes } from 'sequelize/types';
+import sequelize from '../config/db.js';
+import { DataTypes } from 'sequelize';
+import BaseModel from './base.model.js';
 
-const Question = sequelize.define('Question', {
-  username: {
+class Question extends BaseModel {}
+
+Question.init({
+  title: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  email: {
-    type: DataTypes.STRING,
+  content: {
+    type: DataTypes.TEXT,
     allowNull: false
   },
-  password_hash:{
-    type: DataTypes.STRING,
-    allowNull: false
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Users', // nom de la table
+      key: 'id'
+    }
   }
+}, {
+  sequelize,
+  modelName: 'Question',
+  tableName: 'Questions',
+  timestamps: true,
+  paranoid: true
 });
 
-export default User;
+export default Question;
