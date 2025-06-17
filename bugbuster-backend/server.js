@@ -11,6 +11,7 @@ import questionRoutes from './routes/question.routes.js';
 import answerRoutes from './routes/answer.routes.js';
 import tagRoutes from './routes/tag.routes.js';
 import voteRoutes from './routes/vote.routes.js';
+import userRoutes from './routes/user.routes.js';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/answers', answerRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/votes', voteRoutes);
+app.use('/api/users', userRoutes);
 
 // Route de base
 app.get('/', (req, res) => {
@@ -47,4 +49,4 @@ sequelize
     console.error('Erreur de connexion à la base de données:', err);
   });
 
-module.exports = app;
+export default app;

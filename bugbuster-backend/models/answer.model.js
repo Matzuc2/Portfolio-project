@@ -4,12 +4,12 @@ import sequelize from '../config/db.js';
 
 class Answer extends BaseModel {}
 
-Answer.init(sequelize, 'Answer', {
-  content: {
+Answer.init({
+  Body: {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  userId: {
+  UserId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
@@ -17,7 +17,7 @@ Answer.init(sequelize, 'Answer', {
       key: 'id'
     }
   },
-  questionId: {
+  QuestionId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
@@ -29,7 +29,7 @@ Answer.init(sequelize, 'Answer', {
 {
   sequelize,
   modelName: 'Answer',
-  tableName: 'Answer',
+  tableName: 'Answers',
   timestamps: true,
   paranoid: true
 });

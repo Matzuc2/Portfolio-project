@@ -15,7 +15,7 @@ Tag.init({
 }, {
   sequelize,
   modelName: 'Tag',
-  tableName: 'Tag',
+  tableName: 'Tags',
   timestamps: true,
   paranoid: true
 });

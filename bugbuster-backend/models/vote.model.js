@@ -5,31 +5,31 @@ import sequelize from '../config/db.js';
 class Vote extends BaseModel {}
 
 Vote.init({
-  vote_type: {
+  VoteType: {
     type: DataTypes.BOOLEAN,
     allowNull: false
   },
-  userId: {
+  UserId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'User',
+      model: 'Users',
       key: 'id'
     }
   },
-    questionId: {
+    QuestionId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Question',
+        model: 'Questions',
         key: 'id'
       }
     },
-    answerId: {
+    AnswerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Answer',
+        model: 'Answers',
         key: 'id'
       }
     }
@@ -37,7 +37,7 @@ Vote.init({
   {
   sequelize,
   modelName: 'Vote',
-  tableName: 'Vote',
+  tableName: 'Votes',
   timestamps: true,
   paranoid: true,
   validate: {

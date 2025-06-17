@@ -6,12 +6,12 @@ import bcrypt from 'bcrypt';
 class User extends BaseModel {}
 
 User.init({
-  username: {
+  Username: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
   },
-  email: {
+  Email: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
@@ -19,7 +19,7 @@ User.init({
       isEmail: true
     }
   },
-  password_hash: {
+  PasswordHash: {
     type: DataTypes.STRING,
     allowNull: false
   }
@@ -29,15 +29,9 @@ User.init({
 {
   sequelize,
   modelName: 'User',
-  tableName: 'User',
+  tableName: 'Users',
   timestamps: true,
   paranoid: true
-});
-
-// Hash du mot de passe avant création
-User.beforeCreate(async (user) => {
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
 });
 
 export default User;

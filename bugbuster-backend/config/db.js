@@ -4,13 +4,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME || 'bugbuster',
-  process.env.DB_USER || 'root',
-  process.env.DB_PASSWORD || '',
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
-    host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql', // ou 'postgres', 'sqlite', 'mariadb', etc.
-    logging: false, // mettez à true pour voir les requêtes SQL
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 5432,
+    dialect: 'postgres',
+    logging: false,
     pool: {
       max: 5,
       min: 0,
@@ -20,16 +21,13 @@ const sequelize = new Sequelize(
   }
 );
 
-// Tester la connexion
-const testConnection = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connexion à la base de données établie avec succès.');
-  } catch (error) {
-    console.error('Impossible de se connecter à la base de données:', error);
-  }
-};
-
-testConnection();
+// Test de la connexion
+sequelize.authenticate()
+  .then(() => {
+    console.log('Connexion à PostgreSQL établie avec succès.');
+  })
+  .catch(err => {
+    console.error('Impossible de se connecter à PostgreSQL:', err);
+  });
 
 export default sequelize;
