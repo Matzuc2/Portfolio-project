@@ -14,7 +14,7 @@ Answer.init({
     allowNull: false,
     references: {
       model: 'Users',
-      key: 'id'
+      key: 'Id'
     }
   },
   QuestionId: {
@@ -22,7 +22,7 @@ Answer.init({
     allowNull: false,
     references: {
       model: 'Questions',
-      key: 'id'
+      key: 'Id'
     }
   }
 },

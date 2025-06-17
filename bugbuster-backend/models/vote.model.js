@@ -14,7 +14,7 @@ Vote.init({
     allowNull: false,
     references: {
       model: 'Users',
-      key: 'id'
+      key: 'Id'
     }
   },
     QuestionId: {
@@ -22,7 +22,7 @@ Vote.init({
       allowNull: true,
       references: {
         model: 'Questions',
-        key: 'id'
+        key: 'Id'
       }
     },
     AnswerId: {
@@ -30,7 +30,7 @@ Vote.init({
       allowNull: true,
       references: {
         model: 'Answers',
-        key: 'id'
+        key: 'Id'
       }
     }
   },

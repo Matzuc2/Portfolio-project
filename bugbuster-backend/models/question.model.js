@@ -18,7 +18,7 @@ Question.init({
     allowNull: false,
     references: {
       model: 'Users', // nom de la table
-      key: 'id'
+      key: 'Id'
     }
   }
 }, {
