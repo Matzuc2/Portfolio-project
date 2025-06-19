@@ -13,6 +13,7 @@ export default defineConfig({
     open: true, // Ouvre automatiquement le navigateur
   },
   build: {
-    outDir: 'dist', // Dossier de sortie pour la build
+    outDir: 'dist',
+     // Dossier de sortie pour la build
   },
 });

@@ -1,0 +1,53 @@
+/* Applique un fond avec des nuances de noir et violet néon */
+body {
+  margin: 0; /* Supprime les marges par défaut */
+  background: linear-gradient(45deg, #140114, #de59e5, #39ff14);
+  background-size: 400% 400%;
+  animation: neonGradient 6s ease infinite;
+}
+
+/* Animation du fond néon */
+@keyframes neonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Conteneur principal de la page */
+.Title-section {
+  display: flex;
+  flex-direction: column; /* Disposition verticale */
+  align-items: center; /* Centre horizontalement */
+  min-height: 100vh; /* Prend au moins toute la hauteur de la fenêtre */
+  padding: 20px; /* Espacement autour du contenu */
+}
+
+/* Section du logo */
+.logo-section {
+  margin-bottom: 20px; /* BEAUCOUP plus d'espace entre le logo et les questions (desktop) */
+  padding-top: 60px;
+}
+
+/* Responsive - Tablettes */
+@media (max-width: 768px) {
+  .logo-section {
+    margin-bottom: 100px; /* Beaucoup d'espace sur tablette */
+    padding-top: 40px;
+  }
+  
+  .home-page {
+    padding: 15px; /* Padding réduit sur tablette */
+  }
+}
+
+/* Responsive - Mobiles */
+@media (max-width: 480px) {
+  .logo-section {
+    margin-bottom: 80px; /* Espace généreux sur mobile */
+    padding-top: 30px;
+  }
+  
+  .home-page {
+    padding: 10px; /* Padding minimal sur mobile */
+  }
+}

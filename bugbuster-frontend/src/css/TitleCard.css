@@ -1,0 +1,29 @@
+/* Conteneur principal */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+.title-card {
+  text-align: center;
+  cursor: default; /* Supprime l'effet de bouton */
+  transition: transform 0.5s ease-in-out; /* Transition fluide pour le zoom */
+}
+
+/* Effet au survol */
+.title-card:hover {
+  transform: scale(1.1); /* Zoom léger au survol */
+}
+
+/* Logo stylisé */
+.logo {
+  font-family: 'VT323', monospace;
+  font-size: 80px; /* Taille réduite du texte */
+  color: #fff; /* Couleur blanche */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Ombre subtile */
+  text-transform: none; /* Respecte la casse du texte */
+}
+
+.logo-link {
+  text-decoration: none; /* Supprime le soulignement */
+  color: inherit; /* Hérite de la couleur du parent */
+  outline: none; /* Supprime l'outline au focus */
+}

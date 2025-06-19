@@ -1,0 +1,168 @@
+/* Conteneur principal */
+.question-list {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Cadre contenant les questions */
+.questions-frame {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(58, 12, 163, 0.3));
+  border: 2px solid #8a2be2;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 20px #8a2be2, 0 0 40px #6a0dad;
+  max-width: 1200px;
+  margin-top: 50px;
+  width: 60%;
+  backdrop-filter: blur(10px);
+}
+
+/* Titre du cadre */
+.frame-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  color: #fff;
+  text-align: start;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px #8a2be2;
+}
+
+/* Grille des questions */
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+/* Carte individuelle de question */
+.question-card {
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid #8a2be2;
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.question-card:hover {
+  background: rgba(138, 43, 226, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+}
+
+/* Contenu de la question */
+.question-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Titre de la question */
+.question-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 15px;
+  text-shadow: 0 0 5px #8a2be2;
+}
+
+/* Description de la question */
+.question-description {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #ccc;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+/* Section des votes */
+.votes-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+/* Contrôles de vote */
+.vote-controls {
+  display: flex;
+  gap: 10px;
+}
+
+/* Boutons de vote */
+.vote-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upvote-btn {
+  background: linear-gradient(135deg, #00ff88, #00cc66);
+  color: #fff;
+}
+
+.upvote-btn:hover {
+  background: linear-gradient(135deg, #00cc66, #009944);
+  transform: scale(1.05);
+}
+
+.downvote-btn {
+  background: linear-gradient(135deg, #ff4444, #cc3333);
+  color: #fff;
+}
+
+.downvote-btn:hover {
+  background: linear-gradient(135deg, #cc3333, #992222);
+  transform: scale(1.05);
+}
+
+/* Score total */
+.vote-score {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 0 5px #8a2be2;
+}
+
+/* Bouton "En savoir plus" */
+.question-link {
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.question-link:hover {
+  background: linear-gradient(135deg, #6a0dad, #3a0ca3);
+  transform: scale(1.05);
+}
+
+/* Message de chargement */
+.loading {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  color: #bbb;
+  text-align: center;
+  font-style: italic;
+  grid-column: 1 / -1;
+}
