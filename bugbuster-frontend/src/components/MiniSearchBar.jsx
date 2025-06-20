@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import '../css/SearchBar.css';
+import '../css/MiniSearchBar.css';
 
-function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
+function MiniSearchBar({ onSearch, placeholder = "Rechercher..." }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleInputChange = (e) => {
@@ -26,25 +26,25 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="search-form">
-      <div className="search-input-wrapper">
+    <form onSubmit={handleSubmit} className="mini-search-form">
+      <div className="mini-search-wrapper">
         <input
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
           placeholder={placeholder}
-          className="search-input"
+          className="mini-search-input"
         />
         {searchTerm && (
           <button
             type="button"
             onClick={clearSearch}
-            className="clear-btn"
+            className="mini-clear-btn"
           >
             ✕
           </button>
         )}
-        <button type="submit" className="search-btn">
+        <button type="submit" className="mini-search-btn">
           🔍
         </button>
       </div>
@@ -52,4 +52,4 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
   );
 }
 
-export default SearchBar;
+export default MiniSearchBar;

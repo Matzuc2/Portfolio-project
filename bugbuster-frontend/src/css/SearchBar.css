@@ -1,0 +1,140 @@
+/* Conteneur principal de la barre de recherche */
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+/* Formulaire de recherche */
+.search-form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Wrapper de l'input de recherche */
+.search-input-wrapper {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(58, 12, 163, 0.3));
+  border: 2px solid #8a2be2;
+  border-radius: 15px;
+  padding: 5px;
+  box-shadow: 0 0 20px #020202, 0 0 40px #6a0dad;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: flex; /* AJOUT IMPORTANT - c'était manquant ! */
+  align-items: center;
+  width: 100%;
+  max-width: 900px; /* Ajustez cette valeur selon vos besoins */
+}
+
+.search-input-wrapper:focus-within {
+  box-shadow: 0 0 30px #8a2be2, 0 0 60px #6a0dad;
+  border-color: #de59e5;
+}
+
+/* Input de recherche */
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 15px 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.search-input::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Bouton de suppression */
+.clear-btn {
+  background: rgba(255, 68, 68, 0.8);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+  background: rgba(255, 68, 68, 1);
+  transform: scale(1.1);
+}
+
+/* Bouton de recherche */
+.search-btn {
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-btn:hover {
+  background: linear-gradient(135deg, #6a0dad, #3a0ca3);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #8a2be2;
+}
+
+/* Responsive - pour ajuster la largeur selon l'écran */
+@media (max-width: 1200px) {
+  .search-input-wrapper {
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-input-wrapper {
+    max-width: 90%; /* Utilise pourcentage sur tablette */
+  }
+  
+  .search-input {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+  
+  .search-btn {
+    padding: 10px 15px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input-wrapper {
+    max-width: 95%; /* Encore plus large sur mobile */
+  }
+  
+  .search-input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  
+  .search-btn {
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+  
+  .clear-btn {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
+  }
+}

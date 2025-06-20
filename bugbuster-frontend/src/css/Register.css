@@ -1,0 +1,85 @@
+/* Applique le même fond que les autres pages */
+body {
+  margin: 0;
+  background: linear-gradient(45deg, #140114, #de59e5, #39ff14);
+  background-size: 400% 400%;
+  animation: neonGradient 6s ease infinite;
+}
+
+@keyframes neonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Conteneur principal de la page */
+.register-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Header avec le titre */
+.register-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+/* Section du titre */
+.register-title-section {
+  padding-top: 40px;
+}
+
+/* Contenu principal */
+.register-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+}
+
+/* Section du formulaire */
+.register-form-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 550px;
+}
+
+/* Responsive - Tablettes */
+@media (max-width: 768px) {
+  .register-page {
+    padding: 15px;
+  }
+  
+  .register-title-section {
+    padding-top: 20px;
+  }
+  
+  .register-header {
+    margin-bottom: 30px;
+  }
+}
+
+/* Responsive - Mobiles */
+@media (max-width: 480px) {
+  .register-page {
+    padding: 10px;
+  }
+  
+  .register-title-section {
+    padding-top: 10px;
+  }
+  
+  .register-header {
+    margin-bottom: 20px;
+  }
+  
+  .register-form-section {
+    max-width: 100%;
+  }
+}

@@ -1,12 +1,11 @@
 /* Applique un fond avec des nuances de noir et violet néon */
 body {
-  margin: 0; /* Supprime les marges par défaut */
+  margin: 0;
   background: linear-gradient(45deg, #140114, #de59e5, #39ff14);
   background-size: 400% 400%;
   animation: neonGradient 6s ease infinite;
 }
 
-/* Animation du fond néon */
 @keyframes neonGradient {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -14,40 +13,133 @@ body {
 }
 
 /* Conteneur principal de la page */
-.Title-section {
+.home-page {
   display: flex;
-  flex-direction: column; /* Disposition verticale */
-  align-items: center; /* Centre horizontalement */
-  min-height: 100vh; /* Prend au moins toute la hauteur de la fenêtre */
-  padding: 20px; /* Espacement autour du contenu */
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  position: relative; /* AJOUT UNIQUEMENT */
 }
 
 /* Section du logo */
 .logo-section {
-  margin-bottom: 20px; /* BEAUCOUP plus d'espace entre le logo et les questions (desktop) */
+  margin-bottom: 100px;
   padding-top: 60px;
+}
+
+/* Section de la barre de recherche - TAILLE AGRANDIE */
+.search-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1600px; /* Augmenté de 1300px à 1600px */
+  padding: 0 20px;
+}
+
+
+/* Section des questions */
+.questions-section {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* AJOUT UNIQUEMENT - Boutons d'authentification */
+.auth-nav {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.auth-link {
+  padding: 8px 15px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.login-link {
+  background: rgba(26, 26, 46, 0.7);
+  color: #de59e5;
+}
+
+.login-link:hover {
+  background: rgba(26, 26, 46, 0.9);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.register-link {
+  background: rgba(138, 43, 226, 0.7);
+  color: #fff;
+}
+
+.register-link:hover {
+  background: rgba(138, 43, 226, 0.9);
+  transform: scale(1.05);
+}
+
+/* AJOUT UNIQUEMENT - Responsive pour les boutons */
+@media (max-width: 480px) {
+  .auth-nav {
+    top: 10px;
+    left: 10px;
+    gap: 8px;
+  }
+  
+  .auth-link {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
 }
 
 /* Responsive - Tablettes */
 @media (max-width: 768px) {
   .logo-section {
-    margin-bottom: 100px; /* Beaucoup d'espace sur tablette */
+    margin-bottom: 100px;
     padding-top: 40px;
   }
   
+  /* Barre de recherche agrandie pour tablettes */
+  .search-input-wrapper {
+    max-width: 95%; /* Augmenté pour tablettes */
+    padding: 0 15px;
+  }
+  
   .home-page {
-    padding: 15px; /* Padding réduit sur tablette */
+    padding: 15px;
   }
 }
 
 /* Responsive - Mobiles */
 @media (max-width: 480px) {
   .logo-section {
-    margin-bottom: 80px; /* Espace généreux sur mobile */
+    margin-bottom: 80px;
     padding-top: 30px;
   }
   
+  /* Barre de recherche agrandie pour mobiles */
+  .search-input-wrapper {
+    max-width: 98%; /* Augmenté pour mobiles */
+    padding: 0 10px;
+  }
+  
   .home-page {
-    padding: 10px; /* Padding minimal sur mobile */
+    padding: 10px;
+  }
+}
+
+/* Responsive - Très grands écrans */
+@media (min-width: 1400px) {
+  .search-input-wrapper {
+    max-width: 1800px; /* Encore plus large sur très grands écrans */
   }
 }

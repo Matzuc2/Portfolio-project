@@ -14,7 +14,7 @@
   box-shadow: 0 0 20px #8a2be2, 0 0 40px #6a0dad;
   max-width: 1200px;
   margin-top: 50px;
-  width: 60%;
+  width: 80%;
   backdrop-filter: blur(10px);
 }
 
@@ -31,8 +31,18 @@
 /* Grille des questions */
 .questions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+  gap: 30px;
+  width: 100%;
+  max-width: 1500px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .questions-grid {
+    grid-template-columns: 1fr; /* 1 colonne sur mobile */
+    gap: 20px;
+  }
 }
 
 /* Carte individuelle de question */

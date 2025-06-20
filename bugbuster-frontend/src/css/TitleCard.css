@@ -16,7 +16,7 @@
 /* Logo stylisé */
 .logo {
   font-family: 'VT323', monospace;
-  font-size: 80px; /* Taille réduite du texte */
+  font-size: 100px; /* Taille réduite du texte */
   color: #fff; /* Couleur blanche */
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Ombre subtile */
   text-transform: none; /* Respecte la casse du texte */

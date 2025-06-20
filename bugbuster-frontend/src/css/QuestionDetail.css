@@ -1,0 +1,199 @@
+/* Applique le même fond que Home */
+body {
+  margin: 0;
+  background: linear-gradient(45deg, #140114, #de59e5, #39ff14);
+  background-size: 400% 400%;
+  animation: neonGradient 6s ease infinite;
+}
+
+@keyframes neonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Conteneur principal de la page */
+.question-detail-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Section header avec titre et mini search - LOGO AU CENTRE */
+.header-section {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* Espace - Logo - Espace */
+  align-items: center;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Section du titre - COLONNE CENTRALE */
+.title-section {
+  grid-column: 2;
+  justify-self: center;
+}
+
+/* Section de la mini barre de recherche - COLONNE DROITE */
+.mini-search-section {
+  grid-column: 3;
+  justify-self: end;
+  width: 100%;
+  max-width: 400px; /* Largeur maximale */
+  min-width: 200px; /* Largeur minimale */
+}
+
+/* Section de contenu principal */
+.content-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px; /* Réduit de 1200px à 900px */
+  margin: 0 auto;
+  gap: 40px;
+}
+
+/* Section de la question - LARGEUR RÉDUITE */
+.question-section {
+  width: 100%; /* Réduit de 100% à 85% */
+  max-width: 1200px; /* Limite maximale */
+}
+
+/* Section des réponses - LARGEUR RÉDUITE */
+.answers-section {
+  width: 85%; /* Réduit de 100% à 85% */
+  max-width: 800px; /* Limite maximale */
+}
+
+/* Header des réponses */
+.answers-header {
+  margin-bottom: 30px;
+}
+
+.answers-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  color: #fff;
+  text-shadow: 0 0 10px #8a2be2;
+  margin: 0;
+}
+
+/* Liste des réponses */
+.answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.answers-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+/* Section de chargement */
+.loading-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.loading-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Responsive - Écrans moyens */
+@media (max-width: 1200px) {
+  .mini-search-section {
+    max-width: 300px; /* Réduit la taille sur écrans moyens */
+  }
+}
+
+/* Responsive - Tablettes */
+@media (max-width: 1024px) {
+  .header-section {
+    /* Passe en mode flexbox pour responsive */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .title-section {
+    /* Reset les propriétés grid */
+    grid-column: unset;
+    justify-self: unset;
+  }
+  
+  .mini-search-section {
+    /* Reset les propriétés grid */
+    grid-column: unset;
+    justify-self: unset;
+    width: 80%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .content-section {
+    max-width: 700px; /* Réduit pour tablettes */
+  }
+
+  .question-section,
+  .answers-section {
+    width: 90%; /* Légèrement plus large sur tablette */
+  }
+}
+
+/* Responsive - Mobiles */
+@media (max-width: 768px) {
+  .question-detail-page {
+    padding: 15px;
+  }
+  
+  .mini-search-section {
+    width: 95%;
+    max-width: none;
+  }
+  
+  .content-section {
+    max-width: 100%;
+  }
+
+  .question-section,
+  .answers-section {
+    width: 95%; /* Presque toute la largeur sur mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .question-detail-page {
+    padding: 10px;
+  }
+  
+  .mini-search-section {
+    width: 100%;
+  }
+  
+  .content-section {
+    gap: 20px;
+  }
+  
+  .answers-title {
+    font-size: 20px;
+  }
+
+  .question-section,
+  .answers-section {
+    width: 100%; /* Toute la largeur sur petit mobile */
+  }
+}

@@ -1,0 +1,85 @@
+/* Applique le même fond que les autres pages */
+body {
+  margin: 0;
+  background: linear-gradient(45deg, #140114, #de59e5, #39ff14);
+  background-size: 400% 400%;
+  animation: neonGradient 6s ease infinite;
+}
+
+@keyframes neonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Conteneur principal de la page */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Header avec le titre */
+.login-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+/* Section du titre */
+.login-title-section {
+  padding-top: 40px;
+}
+
+/* Contenu principal */
+.login-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+}
+
+/* Section du formulaire */
+.login-form-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Responsive - Tablettes */
+@media (max-width: 768px) {
+  .login-page {
+    padding: 15px;
+  }
+  
+  .login-title-section {
+    padding-top: 20px;
+  }
+  
+  .login-header {
+    margin-bottom: 30px;
+  }
+}
+
+/* Responsive - Mobiles */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 10px;
+  }
+  
+  .login-title-section {
+    padding-top: 10px;
+  }
+  
+  .login-header {
+    margin-bottom: 20px;
+  }
+  
+  .login-form-section {
+    max-width: 100%;
+  }
+}

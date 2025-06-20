@@ -1,0 +1,84 @@
+/* Formulaire de recherche miniaturisé */
+.mini-search-form {
+  width: 100%;
+}
+
+/* Wrapper de l'input miniaturisé */
+.mini-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(58, 12, 163, 0.2));
+  border: 1px solid #8a2be2;
+  border-radius: 10px;
+  padding: 3px;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.mini-search-wrapper:focus-within {
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+  border-color: #de59e5;
+}
+
+/* Input de recherche miniaturisé */
+.mini-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.mini-search-input::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Bouton de suppression miniaturisé */
+.mini-clear-btn {
+  background: rgba(255, 68, 68, 0.7);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.mini-clear-btn:hover {
+  background: rgba(255, 68, 68, 1);
+  transform: scale(1.1);
+}
+
+/* Bouton de recherche miniaturisé */
+.mini-search-btn {
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-search-btn:hover {
+  background: linear-gradient(135deg, #6a0dad, #3a0ca3);
+  transform: scale(1.05);
+  box-shadow: 0 0 8px #8a2be2;
+}

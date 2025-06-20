@@ -1,0 +1,243 @@
+/* Conteneur principal du formulaire d'inscription */
+.register-form-container {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(58, 12, 163, 0.3));
+  border: 2px solid #8a2be2;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 20px #8a2be2, 0 0 40px #6a0dad;
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Titre du formulaire */
+.register-form-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  color: #fff;
+  text-shadow: 0 0 10px #8a2be2;
+  margin-bottom: 25px;
+  margin-top: 0;
+  text-align: center;
+}
+
+/* Formulaire */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Groupes de champs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels */
+.form-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #de59e5;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Inputs */
+.form-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #8a2be2;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #de59e5;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+.form-input::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* États des inputs */
+.form-input.error {
+  border-color: #ff4444;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+}
+
+.form-input.success {
+  border-color: #00ff88;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+/* Wrapper pour input mot de passe */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  padding-right: 45px; /* Espace pour le bouton toggle */
+}
+
+/* Bouton toggle mot de passe */
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #de59e5;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.3s ease;
+}
+
+.password-toggle-btn:hover {
+  transform: scale(1.1);
+  color: #fff;
+}
+
+/* Indicateur de force du mot de passe */
+.password-strength {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  margin-top: 5px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.password-strength.faible {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid #ff4444;
+}
+
+.password-strength.moyen {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.password-strength.fort {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+}
+
+/* Indicateur de correspondance des mots de passe */
+.password-match {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  margin-top: 5px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.password-match.match {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+}
+
+.password-match.no-match {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid #ff4444;
+}
+
+/* Actions du formulaire */
+.form-actions {
+  margin-top: 10px;
+}
+
+/* Bouton de soumission */
+.submit-btn {
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6a0dad, #3a0ca3);
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+}
+
+.submit-btn:disabled {
+  background: rgba(138, 43, 226, 0.3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Section de changement d'authentification */
+.auth-switch {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.switch-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #ccc;
+  margin: 0;
+}
+
+.switch-link {
+  color: #de59e5;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.switch-link:hover {
+  color: #fff;
+  text-shadow: 0 0 5px #de59e5;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .register-form-container {
+    padding: 20px;
+    max-width: 100%;
+  }
+  
+  .register-form-title {
+    font-size: 24px;
+  }
+  
+  .register-form {
+    gap: 15px;
+  }
+  
+  .form-input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .submit-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
