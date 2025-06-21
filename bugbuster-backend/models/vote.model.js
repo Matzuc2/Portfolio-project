@@ -17,24 +17,23 @@ Vote.init({
       key: 'Id'
     }
   },
-    QuestionId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'Questions',
-        key: 'Id'
-      }
-    },
-    AnswerId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'Answers',
-        key: 'Id'
-      }
+  QuestionId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Questions',
+      key: 'Id'
     }
   },
-  {
+  AnswerId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Answers',
+      key: 'Id'
+    }
+  }
+}, {
   sequelize,
   modelName: 'Vote',
   tableName: 'Votes',
@@ -42,8 +41,8 @@ Vote.init({
   paranoid: true,
   validate: {
     eitherQuestionOrAnswer() {
-      if ((this.questionId === null && this.answerId === null) || 
-          (this.questionId !== null && this.answerId !== null)) {
+      if ((this.QuestionId === null && this.AnswerId === null) || 
+          (this.QuestionId !== null && this.AnswerId !== null)) {
         throw new Error('Un vote doit être associé soit à une question, soit à une réponse, mais pas les deux ou aucun des deux');
       }
     }

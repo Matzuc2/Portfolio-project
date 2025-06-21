@@ -50,7 +50,8 @@ body {
   top: 20px;
   left: 20px;
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 15px;
   z-index: 10;
 }
 
@@ -85,6 +86,24 @@ body {
 .register-link:hover {
   background: rgba(138, 43, 226, 0.9);
   transform: scale(1.05);
+}
+
+.user-welcome {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #de59e5;
+  font-weight: bold;
+}
+
+.logout-link {
+  background: linear-gradient(135deg, rgba(255, 68, 68, 0.8), rgba(204, 51, 51, 0.4));
+  color: #fff;
+}
+
+.logout-link:hover {
+  background: linear-gradient(135deg, rgba(255, 68, 68, 0.9), rgba(204, 51, 51, 0.6));
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
 }
 
 /* AJOUT UNIQUEMENT - Responsive pour les boutons */
@@ -141,5 +160,63 @@ body {
 @media (min-width: 1400px) {
   .search-input-wrapper {
     max-width: 1800px; /* Encore plus large sur très grands écrans */
+  }
+}
+
+/* Bouton pour poser une question en haut à droite */
+.ask-question-nav {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.ask-question-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #39ff14, #2bcc0a);
+  color: #000;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(57, 255, 20, 0.5);
+}
+
+.ask-question-btn:hover {
+  background: linear-gradient(135deg, #2bcc0a, #1a7a06);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+}
+
+/* Responsive pour le bouton */
+@media (max-width: 768px) {
+  .ask-question-nav {
+    top: 15px;
+    right: 15px;
+  }
+  
+  .ask-question-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ask-question-nav {
+    position: static;
+    align-self: flex-end;
+    margin-bottom: 10px;
+  }
+  
+  .ask-question-btn {
+    padding: 10px 16px;
+    font-size: 13px;
   }
 }

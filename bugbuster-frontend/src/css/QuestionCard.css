@@ -183,6 +183,29 @@
   text-shadow: 0 0 5px #8a2be2;
 }
 
+/* États actifs des boutons de vote */
+.vote-btn.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  border: 2px solid #fff;
+}
+
+.upvote-btn.active {
+  background: linear-gradient(135deg, #00ff88, #00cc66);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+}
+
+.downvote-btn.active {
+  background: linear-gradient(135deg, #ff4444, #cc3333);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.8);
+}
+
+.vote-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .question-footer {

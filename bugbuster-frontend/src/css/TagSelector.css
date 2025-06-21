@@ -1,0 +1,222 @@
+/* Conteneur principal du sélecteur de tags */
+.tag-selector {
+  width: 100%;
+  position: relative; /* AJOUT IMPORTANT - Pour positionner les suggestions */
+}
+
+/* Conteneur de l'input avec tags */
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #8a2be2;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 50px;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative; /* AJOUT IMPORTANT - Pour référence du positionnement */
+}
+
+.tag-input-container:focus-within {
+  border-color: #de59e5;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+/* Tags sélectionnés */
+.selected-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* Bouton pour supprimer un tag */
+.remove-tag-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.remove-tag-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* Input pour taper les tags */
+.tag-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  min-width: 150px;
+}
+
+.tag-input::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+.tag-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Suggestions de tags - POSITION CORRIGÉE */
+.tag-suggestions {
+  position: absolute;
+  top: calc(100% + 5px); /* CORRECTION : Se positionne juste après le conteneur */
+  left: 0;
+  right: 0;
+  background: rgba(26, 26, 46, 0.95);
+  border: 1px solid #8a2be2;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000; /* AUGMENTÉ pour être au-dessus de tout */
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3); /* Ajout d'une ombre */
+}
+
+/* Suggestion individuelle */
+.tag-suggestion {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(138, 43, 226, 0.2); /* Séparateur subtil */
+}
+
+.tag-suggestion:last-child {
+  border-bottom: none; /* Pas de bordure pour le dernier élément */
+}
+
+.tag-suggestion:hover {
+  background: rgba(138, 43, 226, 0.3);
+  color: #de59e5;
+}
+
+/* Compteur de tags */
+.tag-counter {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+  text-align: right;
+}
+
+/* Tags populaires */
+.popular-tags {
+  margin-top: 15px;
+}
+
+.popular-tags-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #ccc;
+  margin: 0 0 10px 0;
+}
+
+.popular-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Tag populaire */
+.popular-tag {
+  background: rgba(138, 43, 226, 0.2);
+  border: 1px solid rgba(138, 43, 226, 0.5);
+  border-radius: 12px;
+  color: #de59e5;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popular-tag:hover {
+  background: rgba(138, 43, 226, 0.4);
+  border-color: #8a2be2;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tag-input-container {
+    padding: 8px;
+    min-height: 45px;
+  }
+  
+  .tag-input {
+    min-width: 100px;
+    font-size: 13px;
+  }
+  
+  .selected-tag {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .popular-tags-list {
+    gap: 6px;
+  }
+  
+  .popular-tag {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  /* Suggestions plus petites sur mobile */
+  .tag-suggestion {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-input-container {
+    padding: 6px;
+    min-height: 40px;
+  }
+  
+  .tag-input {
+    min-width: 80px;
+    font-size: 12px;
+  }
+  
+  /* Suggestions encore plus compactes */
+  .tag-suggestion {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .tag-suggestions {
+    max-height: 150px; /* Réduit la hauteur sur très petits écrans */
+  }
+}

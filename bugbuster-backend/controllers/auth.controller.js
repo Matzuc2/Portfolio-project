@@ -11,14 +11,35 @@ dotenv.config();
  */
 export const register = async (req, res) => {
   try {
+    console.log('Données reçues pour l\'inscription:', req.body);
+    
     // Accepter les deux formats possibles de noms de champs
     const username = req.body.username || req.body.Username;
     const email = req.body.email || req.body.Email;
     const password = req.body.password || req.body.Password;
     
+    console.log('Champs extraits:', { username, email, password: password ? '***' : 'undefined' });
+    
     // Vérifications
     if (!username || !email || !password) {
+      console.log('Champs manquants:', { username: !!username, email: !!email, password: !!password });
       return res.status(400).json({ error: "Tous les champs sont obligatoires" });
+    }
+    
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Format d'email invalide" });
+    }
+    
+    // Validation username
+    if (username.length < 3) {
+      return res.status(400).json({ error: "Le nom d'utilisateur doit contenir au moins 3 caractères" });
+    }
+    
+    // Validation password
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Le mot de passe doit contenir au moins 6 caractères" });
     }
     
     // Vérifier si l'utilisateur existe déjà
@@ -32,7 +53,12 @@ export const register = async (req, res) => {
     });
     
     if (existingUser) {
-      return res.status(400).json({ error: "Cet utilisateur existe déjà" });
+      if (existingUser.Username === username) {
+        return res.status(400).json({ error: "Ce nom d'utilisateur est déjà pris" });
+      }
+      if (existingUser.Email === email) {
+        return res.status(400).json({ error: "Cet email est déjà utilisé" });
+      }
     }
     
     // Hachage du mot de passe
@@ -45,6 +71,8 @@ export const register = async (req, res) => {
       Email: email,
       PasswordHash: hashedPassword
     });
+    
+    console.log('Utilisateur créé:', { id: user.Id, username: user.Username, email: user.Email });
     
     // Créer un token JWT
     const token = jwt.sign(
@@ -67,8 +95,7 @@ export const register = async (req, res) => {
     console.error("Erreur détaillée lors de l'inscription:", error);
     res.status(500).json({ 
       error: "Erreur lors de l'inscription.",
-      details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: error.message
     });
   }
 };
@@ -78,29 +105,46 @@ export const register = async (req, res) => {
  */
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    console.log('Données reçues pour la connexion:', req.body);
+    
+    const email = req.body.email || req.body.Email;
+    const password = req.body.password || req.body.Password;
+
+    console.log('Tentative de connexion pour:', email);
+
+    // Vérifications
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email et mot de passe sont obligatoires" });
+    }
 
     // Recherche de l'utilisateur par email
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { Email: email } });
     if (!user) {
-      return res.status(404).json({ error: 'Aucun utilisateur trouvé avec cet email.' });
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect.' });
     }
 
     // Vérifie le mot de passe
     const isPasswordValid = await bcrypt.compare(password, user.PasswordHash);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Mot de passe incorrect.' });
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect.' });
     }
 
     // Création du token JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.Id, email: user.Email },
       process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '24h' }
     );
+
+    console.log('Connexion réussie pour:', user.Username);
 
     res.status(200).json({
       message: 'Connexion réussie.',
+      user: {
+        id: user.Id,
+        username: user.Username,
+        email: user.Email
+      },
       token
     });
   } catch (error) {

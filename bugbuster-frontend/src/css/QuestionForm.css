@@ -1,0 +1,333 @@
+/* Conteneur du formulaire de question */
+.question-form-container {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(58, 12, 163, 0.3));
+  border: 2px solid #8a2be2;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 20px #8a2be2, 0 0 40px #6a0dad;
+  backdrop-filter: blur(10px);
+}
+
+/* Formulaire */
+.question-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  position: relative; /* AJOUT pour le contexte de positionnement */
+  z-index: 1; /* Plus bas que les suggestions */
+}
+
+/* Groupes de champs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels */
+.form-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #de59e5;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Inputs génériques */
+.form-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #8a2be2;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #de59e5;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+.form-input::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Input titre spécifique */
+.title-input {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* Textareas */
+.form-textarea {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #8a2be2;
+  border-radius: 8px;
+  padding: 15px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #de59e5;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+.form-textarea::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Textarea pour description */
+.description-textarea {
+  min-height: 120px;
+}
+
+/* Textarea pour code */
+.code-textarea {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #555;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 150px;
+}
+
+.code-textarea:focus {
+  border-color: #8a2be2;
+  box-shadow: 0 0 8px rgba(138, 43, 226, 0.3);
+}
+
+/* Animation pour le champ de code */
+.code-field-animate {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: -10px;
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    margin-top: 0;
+  }
+}
+
+/* Aide pour les inputs */
+.input-help {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #999;
+  margin-top: 5px;
+  text-align: right;
+}
+
+/* Section du bouton toggle code */
+.code-toggle-section {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Bouton pour toggle le champ code */
+.code-toggle-btn {
+  background: linear-gradient(135deg, #de59e5, #8a2be2);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.code-toggle-btn:hover {
+  background: linear-gradient(135deg, #c943d4, #6a0dad);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(222, 89, 229, 0.4);
+}
+
+/* Section d'aide */
+.help-section {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.help-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  color: #de59e5;
+  margin: 0 0 15px 0;
+}
+
+.help-list {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #ccc;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.help-list li {
+  margin-bottom: 5px;
+}
+
+/* Actions du formulaire */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+/* Bouton d'annulation */
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #666;
+  border-radius: 8px;
+  color: #ccc;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #888;
+  color: #fff;
+}
+
+.cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Bouton de soumission */
+.submit-btn {
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6a0dad, #3a0ca3);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+}
+
+.submit-btn:disabled {
+  background: rgba(138, 43, 226, 0.3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* États des boutons */
+.code-toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Messages d'erreur */
+.error-message {
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-input.error,
+.form-textarea.error {
+  border-color: #ff4444;
+  box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
+}
+
+/* Animation de chargement */
+.submit-btn[disabled] {
+  position: relative;
+}
+
+.submit-btn[disabled]::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .question-form-container {
+    padding: 20px;
+  }
+  
+  .question-form {
+    gap: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .cancel-btn,
+  .submit-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .question-form-container {
+    padding: 15px;
+  }
+  
+  .form-input,
+  .form-textarea {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .title-input {
+    font-size: 16px;
+  }
+}

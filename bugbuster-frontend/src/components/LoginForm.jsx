@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../hooks/useNotification';
 import '../css/LoginForm.css';
 
-function LoginForm({ onSubmit }) {
+function LoginForm() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showSuccess, showError } = useNotification();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -21,21 +27,41 @@ function LoginForm({ onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('LoginForm - Début de la soumission');
+    
     if (!formData.email || !formData.password) {
-      alert('Veuillez remplir tous les champs');
+      showError('Veuillez remplir tous les champs');
       return;
     }
 
     setIsSubmitting(true);
     
     try {
-      if (onSubmit) {
-        await onSubmit(formData);
+      console.log('LoginForm - Appel de la fonction login');
+      const result = await login(formData);
+      
+      console.log('LoginForm - Résultat du login:', result);
+      
+      if (result.success) {
+        console.log('LoginForm - Connexion réussie, début de la redirection');
+        showSuccess('Connexion réussie ! Redirection en cours...');
+        
+        // FORCE LA REDIRECTION IMMÉDIATE
+        navigate('/', { replace: true });
+        
+        // Alternative avec délai très court si nécessaire
+        // setTimeout(() => {
+        //   console.log('LoginForm - Exécution de la redirection');
+        //   navigate('/', { replace: true });
+        // }, 500);
+        
+      } else {
+        console.log('LoginForm - Échec de la connexion:', result.error);
+        showError(result.error || 'Erreur de connexion');
       }
-      console.log('Données de connexion:', formData);
     } catch (error) {
-      console.error('Erreur de connexion:', error);
-      alert('Erreur lors de la connexion');
+      console.error('LoginForm - Erreur lors de la connexion:', error);
+      showError('Erreur lors de la connexion');
     } finally {
       setIsSubmitting(false);
     }
@@ -63,6 +89,7 @@ function LoginForm({ onSubmit }) {
             placeholder="votre.email@exemple.com"
             className="form-input"
             required
+            disabled={isSubmitting}
           />
         </div>
 
@@ -80,11 +107,13 @@ function LoginForm({ onSubmit }) {
               placeholder="Votre mot de passe"
               className="form-input password-input"
               required
+              disabled={isSubmitting}
             />
             <button
               type="button"
               onClick={togglePasswordVisibility}
               className="password-toggle-btn"
+              disabled={isSubmitting}
             >
               {showPassword ? '👁️' : '🙈'}
             </button>
@@ -95,14 +124,14 @@ function LoginForm({ onSubmit }) {
           <button
             type="submit"
             className="submit-btn"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !formData.email || !formData.password}
           >
             {isSubmitting ? 'Connexion...' : 'Se connecter'}
           </button>
         </div>
 
         <div className="form-links">
-          <Link to="/forgot-password" className="forgot-link">
+          <Link to="#" className="forgot-link">
             Mot de passe oublié ?
           </Link>
         </div>

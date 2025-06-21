@@ -1,0 +1,200 @@
+/* Applique le même fond que les autres pages */
+body {
+  margin: 0;
+  background: linear-gradient(45deg, #140114, #de59e5, #39ff14);
+  background-size: 400% 400%;
+  animation: neonGradient 6s ease infinite;
+}
+
+@keyframes neonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Conteneur principal de la page */
+.ask-question-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Header avec le titre */
+.ask-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+/* Section du titre */
+.ask-title-section {
+  padding-top: 40px;
+}
+
+/* Contenu principal */
+.ask-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-grow: 1;
+}
+
+/* Section principale */
+.ask-main-section {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Titre de la page */
+.ask-page-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 32px;
+  color: #fff;
+  text-shadow: 0 0 10px #8a2be2;
+  margin: 0;
+  text-align: center;
+}
+
+/* Sous-titre de la page */
+.ask-page-subtitle {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  color: #ccc;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Layout principal avec formulaire et prévisualisation */
+.ask-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Section du formulaire */
+.form-section {
+  width: 100%;
+}
+
+/* Section de prévisualisation */
+.preview-section {
+  width: 100%;
+  position: sticky;
+  top: 20px;
+}
+
+/* Header de la prévisualisation */
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.preview-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 0 0 5px #8a2be2;
+  margin: 0;
+}
+
+.preview-toggle-btn {
+  background: linear-gradient(135deg, #de59e5, #8a2be2);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.preview-toggle-btn:hover {
+  background: linear-gradient(135deg, #c943d4, #6a0dad);
+  transform: scale(1.05);
+}
+
+/* Responsive - Tablettes */
+@media (max-width: 1024px) {
+  .ask-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .preview-section {
+    position: static;
+  }
+  
+  .ask-main-section {
+    max-width: 900px;
+  }
+}
+
+/* Responsive - Mobiles */
+@media (max-width: 768px) {
+  .ask-question-page {
+    padding: 15px;
+  }
+  
+  .ask-title-section {
+    padding-top: 20px;
+  }
+  
+  .ask-header {
+    margin-bottom: 30px;
+  }
+  
+  .ask-page-title {
+    font-size: 28px;
+  }
+  
+  .ask-page-subtitle {
+    font-size: 16px;
+  }
+  
+  .ask-layout {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ask-question-page {
+    padding: 10px;
+  }
+  
+  .ask-title-section {
+    padding-top: 10px;
+  }
+  
+  .ask-header {
+    margin-bottom: 20px;
+  }
+  
+  .ask-page-title {
+    font-size: 24px;
+  }
+  
+  .ask-page-subtitle {
+    font-size: 14px;
+  }
+  
+  .preview-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .preview-toggle-btn {
+    width: 100%;
+  }
+}

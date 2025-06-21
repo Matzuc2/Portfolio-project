@@ -1,103 +1,137 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useNotification } from '../hooks/useNotification';
+import questionService from '../services/questionService';
 import '../css/QuestionList.css';
 
-function QuestionList() {
-  const [questions, setQuestions] = useState([]); // État pour stocker les questions
+function QuestionList({ searchQuery = '' }) {
+  const { showError } = useNotification();
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
 
-  // Simule la récupération des questions factices avec votes
   useEffect(() => {
-    const fakeQuestions = [
-      { 
-        id: 1, 
-        title: 'Quelle est la capitale de la France ?', 
-        description: 'Découvrez l\'histoire et les monuments emblématiques de la capitale française, ainsi que son rôle politique et culturel.',
-        upvotes: 45,
-        downvotes: 3
-      },
-      { 
-        id: 2, 
-        title: 'Combien de continents y a-t-il sur Terre ?', 
-        description: 'Explorez la géographie mondiale et apprenez-en plus sur la formation des continents et leur diversité géologique.',
-        upvotes: 32,
-        downvotes: 8
-      },
-      { 
-        id: 3, 
-        title: 'Qui a écrit "Les Misérables" ?', 
-        description: 'Plongez dans la vie et l\'œuvre de Victor Hugo, l\'un des plus grands écrivains français du XIXe siècle.',
-        upvotes: 67,
-        downvotes: 2
-      },
-      { 
-        id: 4, 
-        title: 'Quelle est la vitesse de la lumière ?', 
-        description: 'Comprenez les principes fondamentaux de la physique et l\'importance de cette constante universelle.',
-        upvotes: 89,
-        downvotes: 5
-      },
-      { 
-        id: 5, 
-        title: 'Quel est le plus grand océan du monde ?', 
-        description: 'Explorez les océans de notre planète, leur biodiversité et leur impact sur le climat mondial.',
-        upvotes: 24,
-        downvotes: 12
-      },
-    ];
-    setQuestions(fakeQuestions);
+    loadQuestions();
   }, []);
 
-  // Fonction pour gérer les votes
-  const handleVote = (questionId, voteType) => {
-    setQuestions(prevQuestions => 
-      prevQuestions.map(question => 
-        question.id === questionId 
-          ? {
-              ...question,
-              [voteType]: question[voteType] + 1
-            }
-          : question
-      )
-    );
+  useEffect(() => {
+    // Filtrer les questions basées sur la recherche
+    if (searchQuery.trim()) {
+      const filtered = questions.filter(question =>
+        question.Title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        question.Content?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredQuestions(filtered);
+    } else {
+      setFilteredQuestions(questions);
+    }
+  }, [searchQuery, questions]);
+
+  const loadQuestions = async () => {
+    try {
+      setLoading(true);
+      const result = await questionService.getAllQuestions();
+      
+      if (result.success) {
+        setQuestions(result.data);
+        setFilteredQuestions(result.data);
+      } else {
+        showError(result.error || 'Erreur lors du chargement des questions');
+        // Fallback vers les données factices en cas d'erreur
+        setQuestions(getFakeQuestions());
+        setFilteredQuestions(getFakeQuestions());
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des questions:', error);
+      showError('Erreur de connexion au serveur');
+      // Fallback vers les données factices
+      setQuestions(getFakeQuestions());
+      setFilteredQuestions(getFakeQuestions());
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const getFakeQuestions = () => [
+    { 
+      Id: 1,
+      Title: 'Comment résoudre une erreur de compilation en JavaScript ?',
+      Content: 'Je rencontre une erreur de syntaxe dans mon code JavaScript...',
+      CreatedAt: new Date().toISOString(),
+      User: { Username: 'John Doe' }
+    },
+    { 
+      Id: 2,
+      Title: 'Problème avec React Hooks',
+      Content: 'J\'ai un problème avec useState qui ne met pas à jour...',
+      CreatedAt: new Date().toISOString(),
+      User: { Username: 'Jane Smith' }
+    },
+    { 
+      Id: 3,
+      Title: 'Optimisation des requêtes SQL',
+      Content: 'Comment optimiser une requête SQL lente ?',
+      CreatedAt: new Date().toISOString(),
+      User: { Username: 'Bob Wilson' }
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="question-list">
+        <div className="questions-frame">
+          <h2 className="frame-title">Questions populaires</h2>
+          <div className="questions-grid">
+            <div className="loading">Chargement des questions...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="question-list">
-      {/* Cadre contenant les questions */}
       <div className="questions-frame">
-        <h2 className="frame-title">Popular questions</h2>
+        <h2 className="frame-title">
+          {searchQuery ? `Résultats pour "${searchQuery}"` : 'Questions populaires'}
+        </h2>
         <div className="questions-grid">
-          {questions.length > 0 ? (
-            questions.map((question) => (
-              <div key={question.id} className="question-card">
-                <div className="question-content">
-                  <h3 className="question-title">{question.title}</h3>
-                  <p className="question-description">{question.description}</p>
-                  
-                  {/* Section des votes */}
-                  <div className="votes-section">
-                    <div className="vote-controls">
-                      <button 
-                        className="vote-btn upvote-btn"
-                        onClick={() => handleVote(question.id, 'upvotes')}
-                      >
-                        ▲ {question.upvotes}
-                      </button>
-                      <button 
-                        className="vote-btn downvote-btn"
-                        onClick={() => handleVote(question.id, 'downvotes')}
-                      >
-                        ▼ {question.downvotes}
-                      </button>
-                    </div>
-                    <div className="vote-score">
-                      Score: {question.upvotes - question.downvotes}
+          {filteredQuestions.length > 0 ? (
+            filteredQuestions.map((question) => (
+              <Link 
+                key={question.Id || question.id} 
+                to={`/question/${question.Id || question.id}`}
+                className="question-card-link"
+              >
+                <div className="question-card">
+                  <div className="question-content">
+                    <h3 className="question-title">
+                      {question.Title || question.title}
+                    </h3>
+                    <p className="question-description">
+                      {(question.Content || question.description)?.substring(0, 150)}
+                      {(question.Content || question.description)?.length > 150 ? '...' : ''}
+                    </p>
+                    
+                    <div className="question-metadata">
+                      <span className="question-author">
+                        Par {question.User?.Username || question.author || 'Utilisateur'}
+                      </span>
+                      <span className="question-date">
+                        {new Date(question.CreatedAt || question.createdAt).toLocaleDateString('fr-FR')}
+                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
-            <p className="loading">Chargement des questions...</p>
+            <div className="no-questions">
+              {searchQuery 
+                ? 'Aucune question trouvée pour cette recherche'
+                : 'Aucune question disponible'
+              }
+            </div>
           )}
         </div>
       </div>

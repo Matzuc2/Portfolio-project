@@ -5,19 +5,19 @@ import BaseModel from './base.model.js';
 class Question extends BaseModel {}
 
 Question.init({
-  title: {
+  Title: { // CORRECTION : Utiliser Title avec majuscule
     type: DataTypes.STRING,
     allowNull: false
   },
-  content: {
+  Content: { // CORRECTION : Utiliser Content avec majuscule
     type: DataTypes.TEXT,
     allowNull: false
   },
-  userId: {
+  UserId: { // CORRECTION : Utiliser UserId avec majuscule pour cohérence
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users', // nom de la table
+      model: 'Users',
       key: 'Id'
     }
   }

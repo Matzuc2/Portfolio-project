@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../hooks/useNotification';
 import '../css/RegisterForm.css';
 
-function RegisterForm({ onSubmit }) {
+function RegisterForm() {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  const { showSuccess, showError } = useNotification();
+  
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -23,22 +29,29 @@ function RegisterForm({ onSubmit }) {
 
   const validateForm = () => {
     if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
-      alert('Veuillez remplir tous les champs');
+      showError('Veuillez remplir tous les champs');
       return false;
     }
 
     if (formData.username.length < 3) {
-      alert('Le nom d\'utilisateur doit contenir au moins 3 caractères');
+      showError('Le nom d\'utilisateur doit contenir au moins 3 caractères');
       return false;
     }
 
     if (formData.password.length < 6) {
-      alert('Le mot de passe doit contenir au moins 6 caractères');
+      showError('Le mot de passe doit contenir au moins 6 caractères');
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Les mots de passe ne correspondent pas');
+      showError('Les mots de passe ne correspondent pas');
+      return false;
+    }
+
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      showError('Format d\'email invalide');
       return false;
     }
 
@@ -48,6 +61,8 @@ function RegisterForm({ onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('Soumission du formulaire avec:', formData);
+    
     if (!validateForm()) {
       return;
     }
@@ -55,13 +70,30 @@ function RegisterForm({ onSubmit }) {
     setIsSubmitting(true);
     
     try {
-      if (onSubmit) {
-        await onSubmit(formData);
+      // Préparer les données sans confirmPassword
+      const registrationData = {
+        username: formData.username.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
+      };
+      
+      console.log('Données préparées pour l\'inscription:', registrationData);
+      
+      const result = await register(registrationData);
+      
+      console.log('Résultat de l\'inscription:', result);
+      
+      if (result.success) {
+        showSuccess('Inscription réussie ! Bienvenue !');
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      } else {
+        showError(result.error || 'Erreur lors de l\'inscription');
       }
-      console.log('Données d\'inscription:', formData);
     } catch (error) {
       console.error('Erreur d\'inscription:', error);
-      alert('Erreur lors de l\'inscription');
+      showError('Erreur lors de l\'inscription');
     } finally {
       setIsSubmitting(false);
     }
@@ -105,6 +137,7 @@ function RegisterForm({ onSubmit }) {
             className="form-input"
             required
             minLength="3"
+            disabled={isSubmitting}
           />
         </div>
 
@@ -121,6 +154,7 @@ function RegisterForm({ onSubmit }) {
             placeholder="votre.email@exemple.com"
             className="form-input"
             required
+            disabled={isSubmitting}
           />
         </div>
 
@@ -139,11 +173,13 @@ function RegisterForm({ onSubmit }) {
               className="form-input password-input"
               required
               minLength="6"
+              disabled={isSubmitting}
             />
             <button
               type="button"
               onClick={togglePasswordVisibility}
               className="password-toggle-btn"
+              disabled={isSubmitting}
             >
               {showPassword ? '👁️' : '🙈'}
             </button>
@@ -175,11 +211,13 @@ function RegisterForm({ onSubmit }) {
                     : ''
               }`}
               required
+              disabled={isSubmitting}
             />
             <button
               type="button"
               onClick={toggleConfirmPasswordVisibility}
               className="password-toggle-btn"
+              disabled={isSubmitting}
             >
               {showConfirmPassword ? '👁️' : '🙈'}
             </button>
@@ -200,7 +238,7 @@ function RegisterForm({ onSubmit }) {
           <button
             type="submit"
             className="submit-btn"
-            disabled={isSubmitting || formData.password !== formData.confirmPassword}
+            disabled={isSubmitting || formData.password !== formData.confirmPassword || !formData.username || !formData.email || !formData.password}
           >
             {isSubmitting ? 'Création...' : 'Créer le compte'}
           </button>

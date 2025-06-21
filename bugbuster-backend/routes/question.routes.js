@@ -1,10 +1,18 @@
 import express from 'express';
-import { getQuestionById, createQuestion, updateQuestion, deleteQuestion, getAnswersByQuestionId } from '../controllers/question.controller.js';
+import { 
+  getAllQuestions, // ADD THIS
+  getQuestionById, 
+  createQuestion, 
+  updateQuestion, 
+  deleteQuestion, 
+  getAnswersByQuestionId 
+} from '../controllers/question.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 // Routes publiques
+router.get('/', getAllQuestions); // ADD THIS ROUTE
 router.get('/:id', getQuestionById);
 router.get('/:questionId/answers', getAnswersByQuestionId);
 

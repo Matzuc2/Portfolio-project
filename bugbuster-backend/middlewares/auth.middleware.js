@@ -1,42 +1,38 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import User from '../models/user.model.js';
-
-dotenv.config();
 
 export const authenticate = async (req, res, next) => {
   try {
-    // Récupérer le token du header Authorization
-    const authHeader = req.headers.authorization;
+    const authHeader = req.header('Authorization');
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Authentification requise' });
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Token d\'accès requis' });
     }
+
+    const token = authHeader.replace('Bearer ', '');
     
-    const token = authHeader.split(' ')[1];
-    
-    // Vérifier le token
+    if (!token) {
+      return res.status(401).json({ error: 'Token d\'accès requis' });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Récupérer l'utilisateur
     const user = await User.findByPk(decoded.id);
-    
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      return res.status(401).json({ error: 'Token invalide' });
     }
-    
-    // Ajouter l'utilisateur à la requête
-    req.user = user;
+
+    // CORRECTION : Utiliser la bonne structure
+    req.user = {
+      Id: user.Id,        // Avec majuscule pour correspondre à la DB
+      id: user.Id,        // Alias pour compatibilité
+      Username: user.Username,
+      Email: user.Email
+    };
     
     next();
   } catch (error) {
     console.error('Erreur d\'authentification:', error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Token invalide' });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Session expirée, veuillez vous reconnecter' });
-    }
-    res.status(500).json({ error: 'Erreur lors de l\'authentification' });
+    res.status(401).json({ error: 'Token invalide' });
   }
 };

@@ -1,6 +1,5 @@
 import Vote from '../models/vote.model.js';
 
-
 /**
  * Récupérer tous les votes
  */
@@ -39,8 +38,8 @@ export const getVotesByQuestionId = async (req, res) => {
   try {
     const votes = await Vote.findAll({
       where: { 
-        questionId: req.params.questionId,
-        answerId: null 
+        QuestionId: req.params.questionId,
+        AnswerId: null 
       }
     });
     
@@ -57,7 +56,7 @@ export const getVotesByQuestionId = async (req, res) => {
 export const getVotesByAnswerId = async (req, res) => {
   try {
     const votes = await Vote.findAll({
-      where: { answerId: req.params.answerId }
+      where: { AnswerId: req.params.answerId }
     });
     
     res.status(200).json(votes);
@@ -73,35 +72,41 @@ export const getVotesByAnswerId = async (req, res) => {
 export const voteQuestion = async (req, res) => {
   try {
     const { questionId, vote_type } = req.body;
-    const userId = req.user.id; // Supposant que vous avez un middleware d'authentification
+    const userId = req.user.Id; // CORRECTION : Utiliser Id avec majuscule
+
+    console.log('Vote data:', { questionId, vote_type, userId }); // Debug
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Utilisateur non authentifié' });
+    }
 
     // Vérifier si l'utilisateur a déjà voté pour cette question
     const existingVote = await Vote.findOne({
       where: { 
-        userId,
-        questionId,
-        answerId: null
+        UserId: userId, // CORRECTION : Utiliser UserId
+        QuestionId: questionId,
+        AnswerId: null
       }
     });
 
     if (existingVote) {
       // Si le vote est identique, on le supprime (annulation du vote)
-      if (existingVote.vote_type === vote_type) {
+      if (existingVote.VoteType === vote_type) {
         await existingVote.destroy();
         return res.status(200).json({ message: 'Vote annulé' });
       } else {
         // Si le vote est différent, on le met à jour
-        await existingVote.update({ vote_type });
+        await existingVote.update({ VoteType: vote_type });
         return res.status(200).json({ message: 'Vote mis à jour', vote: existingVote });
       }
     }
 
     // Créer un nouveau vote
     const newVote = await Vote.create({
-      userId,
-      questionId,
-      answerId: null,
-      vote_type
+      UserId: userId, // CORRECTION : Utiliser UserId
+      QuestionId: questionId,
+      AnswerId: null,
+      VoteType: vote_type // CORRECTION : Utiliser VoteType
     });
 
     res.status(201).json({
@@ -120,34 +125,38 @@ export const voteQuestion = async (req, res) => {
 export const voteAnswer = async (req, res) => {
   try {
     const { answerId, vote_type } = req.body;
-    const userId = req.user.id; // Supposant que vous avez un middleware d'authentification
+    const userId = req.user.Id; // CORRECTION
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Utilisateur non authentifié' });
+    }
 
     // Vérifier si l'utilisateur a déjà voté pour cette réponse
     const existingVote = await Vote.findOne({
       where: { 
-        userId,
-        answerId
+        UserId: userId, // CORRECTION
+        AnswerId: answerId
       }
     });
 
     if (existingVote) {
       // Si le vote est identique, on le supprime (annulation du vote)
-      if (existingVote.vote_type === vote_type) {
+      if (existingVote.VoteType === vote_type) {
         await existingVote.destroy();
         return res.status(200).json({ message: 'Vote annulé' });
       } else {
         // Si le vote est différent, on le met à jour
-        await existingVote.update({ vote_type });
+        await existingVote.update({ VoteType: vote_type });
         return res.status(200).json({ message: 'Vote mis à jour', vote: existingVote });
       }
     }
 
     // Créer un nouveau vote
     const newVote = await Vote.create({
-      userId,
-      questionId: null,
-      answerId,
-      vote_type
+      UserId: userId, // CORRECTION
+      QuestionId: null,
+      AnswerId: answerId,
+      VoteType: vote_type // CORRECTION
     });
 
     res.status(201).json({
@@ -166,7 +175,7 @@ export const voteAnswer = async (req, res) => {
 export const deleteVote = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id; // Supposant que vous avez un middleware d'authentification
+    const userId = req.user.Id; // CORRECTION
 
     const vote = await Vote.findByPk(id);
     
@@ -175,7 +184,7 @@ export const deleteVote = async (req, res) => {
     }
     
     // Vérifiez que l'utilisateur est bien le propriétaire du vote
-    if (vote.userId !== userId) {
+    if (vote.UserId !== userId) { // CORRECTION
       return res.status(403).json({ error: 'Non autorisé à supprimer ce vote' });
     }
     
