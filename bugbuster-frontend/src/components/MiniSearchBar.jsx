@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/MiniSearchBar.css';
 
-function MiniSearchBar({ onSearch, placeholder = "Rechercher..." }) {
+function MiniSearchBar({ placeholder = "Rechercher..." }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
-    if (onSearch) {
-      onSearch(e.target.value);
-    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch(searchTerm);
+    if (searchTerm.trim()) {
+      // NOUVEAU : Rediriger vers la page SearchResults
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
   const clearSearch = () => {
     setSearchTerm('');
-    if (onSearch) {
-      onSearch('');
-    }
   };
 
   return (

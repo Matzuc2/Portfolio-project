@@ -18,6 +18,7 @@
 .answer-card.accepted {
   border: 2px solid #00ff88;
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  animation: acceptedGlow 2s ease-in-out infinite alternate;
 }
 
 /* Badge de réponse acceptée */
@@ -34,6 +35,14 @@
   border-radius: 15px;
   text-shadow: none;
   box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+}
+
+/* Indicateur d'acceptation dans le header */
+.accepted-indicator {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 13px;
+  text-shadow: 0 0 5px #00ff88;
 }
 
 /* Header de la réponse */
@@ -88,7 +97,7 @@
   line-height: 1.4;
 }
 
-/* Footer de la réponse - FORCE LES VOTES À DROITE */
+/* Footer de la réponse */
 .answer-footer {
   display: flex;
   justify-content: space-between;
@@ -97,38 +106,75 @@
   gap: 15px;
 }
 
-/* Section gauche - peut être vide */
-.answer-left-section {
-  display: flex;
-  align-items: center;
-}
-
-/* Votes - TOUJOURS À DROITE */
+/* Votes - toujours à droite */
 .answer-votes {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto; /* Force à droite même si left-section est vide */
+  margin-left: auto;
 }
 
-/* Bouton d'acceptation - MAINTENANT À GAUCHE */
+/* Bouton d'acceptation */
 .accept-btn {
   background: linear-gradient(135deg, #00ff88, #00cc66);
   border: none;
   border-radius: 8px;
-  color: #fff;
+  color: #000;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   font-weight: bold;
   padding: 8px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 255, 136, 0.3);
 }
 
 .accept-btn:hover {
   background: linear-gradient(135deg, #00cc66, #009944);
   transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 255, 136, 0.5);
+  color: #fff;
+}
+
+.accept-btn:active {
+  transform: scale(0.98);
+}
+
+/* Animation pour le bouton quand il apparaît */
+.accept-btn {
+  animation: acceptBtnFadeIn 0.3s ease-in;
+}
+
+@keyframes acceptBtnFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Bouton d'acceptation avec état "désaccepter" */
+.accept-btn.unaccept {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: #fff;
+}
+
+.accept-btn.unaccept:hover {
+  background: linear-gradient(135deg, #ee5a24, #c44a1c);
+  box-shadow: 0 4px 10px rgba(238, 90, 36, 0.5);
+}
+
+/* État désactivé du bouton d'acceptation */
+.accept-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Boutons de vote */
@@ -172,4 +218,36 @@
   color: #fff;
   font-weight: bold;
   text-shadow: 0 0 5px #8a2be2;
+}
+
+/* Animation pour les réponses acceptées */
+@keyframes acceptedGlow {
+  from {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .accept-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .accepted-indicator {
+    font-size: 11px;
+  }
+  
+  .answer-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .accept-btn.unaccept {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
 }

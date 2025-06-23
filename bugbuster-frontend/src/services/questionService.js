@@ -73,10 +73,21 @@ const questionService = {
     }
   },
 
-  // Créer une nouvelle question
+  // Créer une question avec tags
   createQuestion: async (questionData) => {
     try {
-      const response = await api.post('/questions', questionData);
+      console.log('questionService - Données reçues:', questionData);
+      
+      const payload = {
+        title: questionData.title,           // ✅ questionData.title existe
+        content: questionData.description,   // ✅ questionData.description existe maintenant
+        codeSnippet: questionData.codeSnippet, // ✅ questionData.codeSnippet existe maintenant  
+        tags: questionData.tags || []
+      };
+      
+      console.log('questionService - Payload envoyé:', payload);
+      
+      const response = await api.post('/questions', payload);
       return {
         success: true,
         data: response.data
@@ -124,6 +135,23 @@ const questionService = {
     }
   },
 
+  // Récupérer une question complète avec ses détails
+  getQuestionWithDetails: async (id) => {
+    try {
+      const response = await api.get(`/questions/${id}`);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des détails de la question:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Question non trouvée'
+      };
+    }
+  },
+
   // Récupérer les réponses d'une question
   getAnswersByQuestionId: async (questionId) => {
     try {
@@ -137,6 +165,34 @@ const questionService = {
       return {
         success: false,
         error: error.response?.data?.error || 'Erreur lors de la récupération des réponses'
+      };
+    }
+  },
+
+  // Recherche avancée avec filtres
+  searchQuestions: async (filters) => {
+    try {
+      const params = new URLSearchParams();
+      
+      if (filters.query) params.append('q', filters.query);
+      if (filters.searchType) params.append('type', filters.searchType);
+      if (filters.tags && filters.tags.length > 0) {
+        params.append('tags', filters.tags.join(','));
+      }
+      if (filters.sortBy) params.append('sort', filters.sortBy);
+      if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters.dateTo) params.append('dateTo', filters.dateTo);
+
+      const response = await api.get(`/questions/search?${params.toString()}`);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Erreur lors de la recherche'
       };
     }
   }

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // AJOUT
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../hooks/useNotification';
 import voteService from '../services/voteService';
 import '../css/QuestionCard.css';
 
 function QuestionCard({ question, isDetailView = false, onReplyClick }) {
-  const navigate = useNavigate(); // AJOUT
+  const navigate = useNavigate();
   const { isAuthenticated, getCurrentUserId } = useAuth();
   const { showSuccess, showError, showWarning } = useNotification();
   
   const [voteData, setVoteData] = useState({
     upvotes: 0,
     downvotes: 0,
-    userVote: null // null, true (upvote), false (downvote)
+    userVote: null
   });
   const [isVoting, setIsVoting] = useState(false);
 
@@ -54,7 +54,6 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
   };
 
   const handleVote = async (voteType) => {
-    // CORRECTION : Redirection vers login si non connecté
     if (!isAuthenticated) {
       showWarning('Vous devez être connecté pour voter');
       setTimeout(() => {
@@ -94,7 +93,6 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
   };
 
   const handleReplyClick = () => {
-    // CORRECTION : Redirection vers login si non connecté
     if (!isAuthenticated) {
       showWarning('Vous devez être connecté pour répondre');
       setTimeout(() => {
@@ -126,12 +124,22 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
       </div>
 
       <div className="question-body">
-        <p className="question-details-description">
-          {question.description || question.Content}
-        </p>
-        {isDetailView && question.content && (
-          <div className="question-full-content">
-            <pre className="question-code">{question.content}</pre>
+        {/* Description/Contenu principal */}
+        <div className="question-description">
+          <p className="question-details-description">
+            {question.Content || question.content}
+          </p>
+        </div>
+        
+        {/* Code snippet - MÊME APPROCHE QU'ANSWERCARD */}
+        {(question.CodeSnippet || question.codeSnippet) && (
+          <div className="question-code-section">
+            <div className="code-header">
+              <span className="code-label">📝 Code :</span>
+            </div>
+            <pre className="question-code">
+              {question.CodeSnippet || question.codeSnippet}
+            </pre>
           </div>
         )}
       </div>

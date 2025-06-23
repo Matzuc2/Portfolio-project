@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../hooks/useNotification';
 import '../css/ReplyForm.css';
 
 function ReplyForm({ questionId, onReplySubmit, onCancel }) {
+  const { isAuthenticated, getCurrentUserId } = useAuth();
+  const { showError } = useNotification();
+  
   const [replyContent, setReplyContent] = useState('');
   const [codeContent, setCodeContent] = useState('');
-  const [showCodeField, setShowCodeField] = useState(false); // État pour afficher/masquer le champ code
+  const [showCodeField, setShowCodeField] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!replyContent.trim()) {
-      alert('Veuillez saisir une réponse');
+      showError('Veuillez saisir une réponse');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      showError('Vous devez être connecté pour répondre');
       return;
     }
 
@@ -19,28 +29,25 @@ function ReplyForm({ questionId, onReplySubmit, onCancel }) {
 
     try {
       const newReply = {
-        id: Date.now(),
-        content: replyContent,
-        codeContent: (showCodeField && codeContent.trim()) ? codeContent : null,
-        author: 'Utilisateur Connecté',
-        createdAt: new Date().toLocaleDateString('fr-FR'),
-        upvotes: 0,
-        downvotes: 0,
-        isAccepted: false
+        content: replyContent.trim(),
+        codeContent: (showCodeField && codeContent.trim()) ? codeContent.trim() : null,
+        questionId: questionId
       };
 
+      console.log('Soumission de la réponse:', newReply);
+
       if (onReplySubmit) {
-        onReplySubmit(newReply);
+        await onReplySubmit(newReply);
       }
 
-      // Réinitialiser le formulaire
+      // Réinitialiser le formulaire après succès
       setReplyContent('');
       setCodeContent('');
       setShowCodeField(false);
       
     } catch (error) {
       console.error('Erreur lors de la soumission:', error);
-      alert('Erreur lors de la soumission de la réponse');
+      showError('Erreur lors de la soumission de la réponse');
     } finally {
       setIsSubmitting(false);
     }
@@ -58,7 +65,7 @@ function ReplyForm({ questionId, onReplySubmit, onCancel }) {
   const toggleCodeField = () => {
     setShowCodeField(!showCodeField);
     if (showCodeField) {
-      setCodeContent(''); // Vider le code si on masque le champ
+      setCodeContent('');
     }
   };
 
@@ -79,21 +86,21 @@ function ReplyForm({ questionId, onReplySubmit, onCancel }) {
             className="reply-textarea"
             rows="6"
             required
+            disabled={isSubmitting}
           />
         </div>
 
-        {/* Bouton pour ajouter/masquer le champ code */}
         <div className="code-toggle-section">
           <button
             type="button"
             onClick={toggleCodeField}
             className="code-toggle-btn"
+            disabled={isSubmitting}
           >
             {showCodeField ? '❌ Supprimer le code' : '📝 Ajouter un code snippet'}
           </button>
         </div>
 
-        {/* Champ de code conditionnel */}
         {showCodeField && (
           <div className="form-group code-field-animate">
             <label htmlFor="code-content" className="form-label">
@@ -106,6 +113,7 @@ function ReplyForm({ questionId, onReplySubmit, onCancel }) {
               placeholder="Ajoutez votre code ici..."
               className="code-textarea"
               rows="6"
+              disabled={isSubmitting}
             />
           </div>
         )}
@@ -125,7 +133,7 @@ function ReplyForm({ questionId, onReplySubmit, onCancel }) {
             className="submit-btn"
             disabled={isSubmitting || !replyContent.trim()}
           >
-            {isSubmitting ? 'Envoi...' : 'Publier la réponse'}
+            {isSubmitting ? 'Publication...' : 'Publier la réponse'}
           </button>
         </div>
       </form>

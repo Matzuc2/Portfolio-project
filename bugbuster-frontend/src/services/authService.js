@@ -83,24 +83,62 @@ const authService = {
     } catch (error) {
       console.error('authService - Erreur de connexion:', error);
       console.error('authService - Détails de l\'erreur:', error.response?.data);
-      return {
-        success: false,
-        error: error.response?.data?.error || 'Erreur de connexion'
-      };
+      
+      // AMÉLIORATION : Gestion plus précise des erreurs
+      if (error.response) {
+        const status = error.response.status;
+        const errorMessage = error.response.data?.error;
+        
+        switch (status) {
+          case 400:
+            return {
+              success: false,
+              error: errorMessage || 'Données invalides'
+            };
+          case 401:
+            return {
+              success: false,
+              error: errorMessage || 'Email ou mot de passe incorrect'
+            };
+          case 429:
+            return {
+              success: false,
+              error: 'Trop de tentatives. Veuillez patienter quelques minutes.'
+            };
+          case 500:
+            return {
+              success: false,
+              error: 'Erreur temporaire du serveur. Veuillez réessayer.'
+            };
+          default:
+            return {
+              success: false,
+              error: errorMessage || 'Erreur de connexion'
+            };
+        }
+      } else if (error.request) {
+        return {
+          success: false,
+          error: 'Impossible de contacter le serveur. Vérifiez votre connexion internet.'
+        };
+      } else {
+        return {
+          success: false,
+          error: 'Erreur inattendue. Veuillez réessayer.'
+        };
+      }
     }
   },
 
-  // Inscription - CORRECTION : Utiliser les bons noms de champs
+  // Inscription - CORRECTION : Ne pas stocker le token automatiquement
   register: async (userData) => {
     try {
       console.log('Tentative d\'inscription avec:', userData);
       
-      // CORRECTION : Mapper les champs du formulaire vers ceux attendus par le backend
       const payload = {
         username: userData.username,
         email: userData.email,
         password: userData.password
-        // Ne pas envoyer confirmPassword au backend
       };
       
       console.log('Payload envoyé au backend:', payload);
@@ -110,14 +148,13 @@ const authService = {
       console.log('Réponse d\'inscription:', response.data);
       
       if (response.data.token) {
-        // Stocker le token et les informations utilisateur
-        localStorage.setItem('auth_token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // CORRECTION : Ne PAS stocker le token automatiquement
+        // L'utilisateur doit se connecter manuellement après inscription
         
         return {
           success: true,
           user: response.data.user,
-          token: response.data.token
+          message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.'
         };
       } else {
         return {

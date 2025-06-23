@@ -1,32 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // AJOUT
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../hooks/useNotification';
 import voteService from '../services/voteService';
+import answerService from '../services/answerService';
 import '../css/AnswerCard.css';
 
-function AnswerCard({ answer }) {
-  const navigate = useNavigate(); // AJOUT
+function AnswerCard({ answer, onUpdate, question }) {
+  const navigate = useNavigate();
   const { isAuthenticated, getCurrentUserId } = useAuth();
   const { showSuccess, showError, showWarning } = useNotification();
   
   const [voteData, setVoteData] = useState({
-    upvotes: answer.upvotes || 0,
-    downvotes: answer.downvotes || 0,
+    upvotes: 0,
+    downvotes: 0,
     userVote: null
   });
   const [isVoting, setIsVoting] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [localAnswer, setLocalAnswer] = useState(answer);
+
+  // Synchroniser l'état local avec les props
+  useEffect(() => {
+    setLocalAnswer(answer);
+  }, [answer]);
 
   // Charger les données de votes
   useEffect(() => {
-    if (answer?.id && isAuthenticated) {
+    if (localAnswer?.Id && isAuthenticated) {
       loadVoteData();
     }
-  }, [answer?.id, isAuthenticated]);
+  }, [localAnswer?.Id, isAuthenticated]);
 
   const loadVoteData = async () => {
     try {
-      const result = await voteService.getVotesByAnswerId(answer.id);
+      const result = await voteService.getVotesByAnswerId(localAnswer.Id);
       
       if (result.success) {
         const votes = result.data;
@@ -47,8 +55,10 @@ function AnswerCard({ answer }) {
     }
   };
 
-  const handleVote = async (voteType) => {
-    // CORRECTION : Redirection vers login si non connecté
+  const handleVote = async (voteType, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (!isAuthenticated) {
       showWarning('Vous devez être connecté pour voter');
       setTimeout(() => {
@@ -62,7 +72,7 @@ function AnswerCard({ answer }) {
     setIsVoting(true);
     
     try {
-      const result = await voteService.voteAnswer(answer.id, voteType);
+      const result = await voteService.voteAnswer(localAnswer.Id, voteType);
       
       if (result.success) {
         await loadVoteData();
@@ -85,8 +95,10 @@ function AnswerCard({ answer }) {
     }
   };
 
-  const handleAcceptAnswer = () => {
-    // CORRECTION : Redirection vers login si non connecté
+  const handleAcceptAnswer = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (!isAuthenticated) {
       showWarning('Vous devez être connecté pour accepter une réponse');
       setTimeout(() => {
@@ -95,13 +107,57 @@ function AnswerCard({ answer }) {
       return;
     }
 
-    console.log(`Accepter la réponse ${answer.id}`);
-    // Logique pour accepter la réponse
+    if (isAccepting) return;
+
+    setIsAccepting(true);
+
+    try {
+      let result;
+      
+      if (localAnswer.IsAccepted) {
+        result = await answerService.unacceptAnswer(localAnswer.Id);
+        if (result.success) {
+          showSuccess('Acceptation annulée');
+          setLocalAnswer(prev => ({ ...prev, IsAccepted: false }));
+        }
+      } else {
+        result = await answerService.acceptAnswer(localAnswer.Id);
+        if (result.success) {
+          showSuccess('Réponse acceptée !');
+          setLocalAnswer(prev => ({ ...prev, IsAccepted: true }));
+        }
+      }
+
+      if (result.success) {
+        if (onUpdate && result.data?.answer) {
+          onUpdate(result.data.answer);
+        }
+      } else {
+        showError(result.error || 'Erreur lors de la modification');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'acceptation:', error);
+      showError('Erreur lors de la modification');
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
+  // Vérifier si l'utilisateur connecté est l'auteur de la question
+  const isQuestionAuthor = () => {
+    if (!isAuthenticated || !question) return false;
+    
+    const currentUserId = getCurrentUserId();
+    const questionUserId = question.UserId || question.User?.Id;
+    
+    return currentUserId === questionUserId;
   };
 
   return (
-    <div className={`answer-card ${answer.isAccepted ? 'accepted' : ''}`}>
-      {answer.isAccepted && (
+    <div className={`answer-card ${localAnswer.IsAccepted ? 'accepted' : ''}`}>
+      {/* SUPPRESSION du badge "Meilleure réponse" */}
+      
+      {localAnswer.IsAccepted && (
         <div className="accepted-badge">
           ✓ Réponse acceptée
         </div>
@@ -109,45 +165,62 @@ function AnswerCard({ answer }) {
       
       <div className="answer-header">
         <div className="answer-meta">
-          <span className="answer-author">Par {answer.author}</span>
-          <span className="answer-date">{answer.createdAt}</span>
+          <span className="answer-author">
+            Par {localAnswer.User?.Username || 'Utilisateur anonyme'}
+          </span>
+          <span className="answer-date">
+            {new Date(localAnswer.CreatedAt).toLocaleDateString('fr-FR')}
+          </span>
+          {localAnswer.IsAccepted && (
+            <span className="accepted-indicator">
+              🏆 Acceptée !
+            </span>
+          )}
         </div>
       </div>
 
       <div className="answer-body">
-        <p className="answer-content">{answer.content}</p>
+        <p className="answer-content">{localAnswer.Body}</p>
         
-        {/* Affichage du code si présent */}
-        {answer.codeContent && (
+        {localAnswer.CodeSnippet && (
           <div className="answer-code-section">
-            <pre className="answer-code">{answer.codeContent}</pre>
+            <pre className="answer-code">{localAnswer.CodeSnippet}</pre>
           </div>
         )}
       </div>
 
       <div className="answer-footer">
-        {/* Bouton d'acceptation À GAUCHE */}
-        {!answer.isAccepted && (
+        {isQuestionAuthor() && (
           <button 
-            className="accept-btn"
+            type="button"
+            className={`accept-btn ${localAnswer.IsAccepted ? 'unaccept' : ''}`}
             onClick={handleAcceptAnswer}
+            disabled={isAccepting}
+            title={localAnswer.IsAccepted ? "Annuler l'acceptation" : "Accepter cette réponse comme solution"}
           >
-            Accepter cette réponse
+            {isAccepting ? (
+              '⏳ Modification...'
+            ) : localAnswer.IsAccepted ? (
+              '❌ Annuler l\'acceptation'
+            ) : (
+              '✅ Accepter cette réponse'
+            )}
           </button>
         )}
 
-        {/* Votes À DROITE */}
         <div className="answer-votes">
           <button 
+            type="button"
             className={`vote-btn upvote-btn ${voteData.userVote === true ? 'active' : ''}`}
-            onClick={() => handleVote(true)}
+            onClick={(e) => handleVote(true, e)}
             disabled={isVoting}
           >
             ▲ {voteData.upvotes}
           </button>
           <button 
+            type="button"
             className={`vote-btn downvote-btn ${voteData.userVote === false ? 'active' : ''}`}
-            onClick={() => handleVote(false)}
+            onClick={(e) => handleVote(false, e)}
             disabled={isVoting}
           >
             ▼ {voteData.downvotes}

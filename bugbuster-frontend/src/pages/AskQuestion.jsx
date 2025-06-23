@@ -43,13 +43,21 @@ function AskQuestion() {
     setIsSubmitting(true);
 
     try {
-      // Préparer les données pour l'API
+      console.log('=== DEBUGGING ASKQUESTION ===');
+      console.log('Données du formulaire reçues:', formData);
+      
+      // CORRECTION : Mapper correctement selon ce que le service attend
       const questionPayload = {
         title: formData.title.trim(),
-        content: formData.description.trim() + (formData.content ? '\n\n' + formData.content.trim() : '')
+        description: formData.description.trim(), // Le service lit questionData.description
+        codeSnippet: formData.content ? formData.content.trim() : null, // Le service lit questionData.codeSnippet
+        tags: formData.tags || []
       };
 
-      console.log('Envoi de la question:', questionPayload);
+      console.log('=== PAYLOAD PRÉPARÉ ===');
+      console.log('questionPayload:', questionPayload);
+      console.log('questionPayload.description:', questionPayload.description);
+      console.log('questionPayload.codeSnippet:', questionPayload.codeSnippet);
 
       // Appeler le service pour créer la question
       const result = await questionService.createQuestion(questionPayload);

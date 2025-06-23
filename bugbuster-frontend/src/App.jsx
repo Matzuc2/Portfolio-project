@@ -8,6 +8,7 @@ import QuestionDetail from './pages/QuestionDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AskQuestion from './pages/AskQuestion';
+import SearchResults from './pages/SearchResults';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AppContent() {
@@ -22,6 +23,9 @@ function AppContent() {
           
           {/* Route pour les détails d'une question */}
           <Route path="/question/:id" element={<QuestionDetail />} />
+          
+          {/* Route pour les résultats de recherche */}
+          <Route path="/search" element={<SearchResults />} />
           
           {/* Routes d'authentification */}
           <Route path="/login" element={<Login />} />

@@ -2,35 +2,25 @@
 
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import sequelize from './config/db.js';
-
-// CORRECTION : Import des associations AVANT les routes
 import './models/associations.js';
 
 // Import des routes
 import authRoutes from './routes/auth.routes.js';
 import questionRoutes from './routes/question.routes.js';
 import answerRoutes from './routes/answer.routes.js';
+import userRoutes from './routes/user.routes.js';
 import tagRoutes from './routes/tag.routes.js';
 import voteRoutes from './routes/vote.routes.js';
-import userRoutes from './routes/user.routes.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration avec logging
+// Configuration CORS
 app.use(cors({
   origin: function (origin, callback) {
-    // Permettre les requêtes sans origin (ex: mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    
     const allowedOrigins = [
-      'http://localhost:3000',
       'http://localhost:3001',
-      'http://127.0.0.1:3000',
       'http://127.0.0.1:3001'
     ];
     
@@ -44,7 +34,7 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'], // AJOUT de PATCH
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -63,34 +53,48 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
-app.use('/api/answers', answerRoutes);
+app.use('/api/answers', answerRoutes); // VÉRIFIER que cette ligne existe
+app.use('/api/users', userRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/votes', voteRoutes);
-app.use('/api/users', userRoutes);
 
-// Route de base
+// Route de test
 app.get('/', (req, res) => {
-  res.send('API BugBuster est en ligne');
+  res.json({ message: 'API BugBuster en fonctionnement' });
 });
 
-// Gestion des erreurs globales
-app.use((error, req, res, next) => {
-  console.error('Erreur globale:', error);
-  res.status(500).json({ error: 'Erreur interne du serveur' });
+// Middleware de gestion des erreurs
+app.use((err, req, res, next) => {
+  console.error('Erreur serveur:', err.stack);
+  res.status(500).json({ error: 'Erreur serveur interne' });
 });
 
-// Synchronisation avec la base de données et démarrage du serveur
-sequelize
-  .sync({ force: false })
-  .then(() => {
-    console.log('Base de données synchronisée');
+// Gestion des routes non trouvées
+app.use('*', (req, res) => {
+  console.log(`Route non trouvée: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ error: 'Route non trouvée' });
+});
+
+// Démarrage du serveur
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Connexion à la base de données établie.');
+    
+    // Synchroniser les modèles
+    await sequelize.sync({ alter: true });
+    console.log('✅ Modèles synchronisés avec la base de données.');
+    
     app.listen(PORT, () => {
-      console.log(`Serveur démarré sur le port ${PORT}`);
-      console.log(`CORS autorisé pour: http://localhost:3000, http://localhost:3001`);
+      console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+      console.log(`📍 API accessible sur http://localhost:${PORT}`);
     });
-  })
-  .catch(err => {
-    console.error('Erreur de connexion à la base de données:', err);
-  });
+  } catch (error) {
+    console.error('❌ Impossible de démarrer le serveur:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app;

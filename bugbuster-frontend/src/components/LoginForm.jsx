@@ -15,6 +15,7 @@ function LoginForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [formErrors, setFormErrors] = useState({}); // AJOUT : État pour les erreurs
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,6 +23,31 @@ function LoginForm() {
       ...prev,
       [name]: value
     }));
+    
+    // AJOUT : Effacer l'erreur quand l'utilisateur tape
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.email) {
+      errors.email = 'L\'email est obligatoire';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Format d\'email invalide';
+    }
+    
+    if (!formData.password) {
+      errors.password = 'Le mot de passe est obligatoire';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -29,12 +55,13 @@ function LoginForm() {
     
     console.log('LoginForm - Début de la soumission');
     
-    if (!formData.email || !formData.password) {
-      showError('Veuillez remplir tous les champs');
+    // MODIFICATION : Validation avec affichage des erreurs
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
+    setFormErrors({}); // Effacer les erreurs précédentes
     
     try {
       console.log('LoginForm - Appel de la fonction login');
@@ -45,22 +72,41 @@ function LoginForm() {
       if (result.success) {
         console.log('LoginForm - Connexion réussie, début de la redirection');
         showSuccess('Connexion réussie ! Redirection en cours...');
-        
-        // FORCE LA REDIRECTION IMMÉDIATE
         navigate('/', { replace: true });
-        
-        // Alternative avec délai très court si nécessaire
-        // setTimeout(() => {
-        //   console.log('LoginForm - Exécution de la redirection');
-        //   navigate('/', { replace: true });
-        // }, 500);
-        
       } else {
         console.log('LoginForm - Échec de la connexion:', result.error);
-        showError(result.error || 'Erreur de connexion');
+        
+        // AJOUT : Gestion spécifique des erreurs de connexion
+        const errorMessage = result.error || 'Erreur de connexion';
+        
+        if (errorMessage.includes('Email ou mot de passe incorrect') || 
+            errorMessage.includes('utilisateur non trouvé') ||
+            errorMessage.includes('incorrect')) {
+          setFormErrors({
+            general: 'Email ou mot de passe incorrect. Vérifiez vos identifiants.'
+          });
+        } else if (errorMessage.includes('Email') && errorMessage.includes('obligatoire')) {
+          setFormErrors({
+            email: 'L\'email est obligatoire'
+          });
+        } else if (errorMessage.includes('mot de passe') && errorMessage.includes('obligatoire')) {
+          setFormErrors({
+            password: 'Le mot de passe est obligatoire'
+          });
+        } else {
+          setFormErrors({
+            general: 'Erreur de connexion. Veuillez réessayer.'
+          });
+        }
+        
+        // Aussi afficher dans la notification
+        showError(errorMessage);
       }
     } catch (error) {
       console.error('LoginForm - Erreur lors de la connexion:', error);
+      setFormErrors({
+        general: 'Erreur de connexion au serveur. Veuillez réessayer.'
+      });
       showError('Erreur lors de la connexion');
     } finally {
       setIsSubmitting(false);
@@ -75,6 +121,13 @@ function LoginForm() {
     <div className="login-form-container">
       <h2 className="login-form-title">Connexion</h2>
       
+      {/* AJOUT : Affichage de l'erreur générale */}
+      {formErrors.general && (
+        <div className="form-error-message general-error">
+          ⚠️ {formErrors.general}
+        </div>
+      )}
+      
       <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
           <label htmlFor="email" className="form-label">
@@ -87,10 +140,16 @@ function LoginForm() {
             value={formData.email}
             onChange={handleInputChange}
             placeholder="votre.email@exemple.com"
-            className="form-input"
+            className={`form-input ${formErrors.email ? 'error' : ''}`}
             required
             disabled={isSubmitting}
           />
+          {/* AJOUT : Affichage de l'erreur pour l'email */}
+          {formErrors.email && (
+            <span className="form-error-message">
+              {formErrors.email}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -105,7 +164,7 @@ function LoginForm() {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Votre mot de passe"
-              className="form-input password-input"
+              className={`form-input password-input ${formErrors.password ? 'error' : ''}`}
               required
               disabled={isSubmitting}
             />
@@ -118,6 +177,12 @@ function LoginForm() {
               {showPassword ? '👁️' : '🙈'}
             </button>
           </div>
+          {/* AJOUT : Affichage de l'erreur pour le mot de passe */}
+          {formErrors.password && (
+            <span className="form-error-message">
+              {formErrors.password}
+            </span>
+          )}
         </div>
 
         <div className="form-actions">

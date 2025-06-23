@@ -6,7 +6,7 @@ import '../css/RegisterForm.css';
 
 function RegisterForm() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  // CORRECTION : Ne pas utiliser register du contexte
   const { showSuccess, showError } = useNotification();
   
   const [formData, setFormData] = useState({
@@ -70,6 +70,9 @@ function RegisterForm() {
     setIsSubmitting(true);
     
     try {
+      // CORRECTION : Appeler directement authService au lieu du contexte
+      const { default: authService } = await import('../services/authService');
+      
       // Préparer les données sans confirmPassword
       const registrationData = {
         username: formData.username.trim(),
@@ -79,15 +82,22 @@ function RegisterForm() {
       
       console.log('Données préparées pour l\'inscription:', registrationData);
       
-      const result = await register(registrationData);
+      const result = await authService.register(registrationData);
       
       console.log('Résultat de l\'inscription:', result);
       
       if (result.success) {
-        showSuccess('Inscription réussie ! Bienvenue !');
+        showSuccess('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+        
+        // CORRECTION : Rediriger vers la page de connexion au lieu de rester connecté
         setTimeout(() => {
-          navigate('/');
-        }, 1500);
+          navigate('/login', { 
+            state: { 
+              message: 'Inscription réussie ! Connectez-vous avec vos identifiants.',
+              email: formData.email 
+            }
+          });
+        }, 2000);
       } else {
         showError(result.error || 'Erreur lors de l\'inscription');
       }

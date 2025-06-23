@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import TitleCard from '../components/TitleCard';
-import QuestionList from '../components/QuestionList';
 import SearchBar from '../components/SearchBar';
+import QuestionList from '../components/QuestionList';
 import '../css/Home.css';
 
 function Home() {
   const { isAuthenticated, user, logout } = useAuth();
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Récupérer la recherche depuis l'URL au chargement
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchParams]);
+
   const handleSearch = (query) => {
+    // MODIFICATION : Cette fonction n'est plus utilisée pour la navigation
+    // Elle sert maintenant uniquement pour la recherche en temps réel sur Home
     setSearchQuery(query);
   };
 
@@ -62,7 +73,10 @@ function Home() {
 
       {/* Section de recherche */}
       <div className="search-section">
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar 
+          onSearch={handleSearch} 
+          initialValue={searchQuery}
+        />
       </div>
 
       {/* Section des questions */}

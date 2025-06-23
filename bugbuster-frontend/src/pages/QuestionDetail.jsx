@@ -1,106 +1,173 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../hooks/useNotification';
 import TitleCard from '../components/TitleCard';
 import MiniSearchBar from '../components/MiniSearchBar';
 import QuestionCard from '../components/QuestionCard';
 import AnswerCard from '../components/AnswerCard';
 import ReplyForm from '../components/ReplyForm';
+import questionService from '../services/questionService';
+import answerService from '../services/answerService';
 import '../css/QuestionDetail.css';
 
 function QuestionDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { showSuccess, showError, showWarning } = useNotification();
+  
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showReplyForm, setShowReplyForm] = useState(false); // État pour afficher/masquer le formulaire
+  const [loadingAnswers, setLoadingAnswers] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simuler la récupération de la question et ses réponses
-    const fakeQuestion = {
-      id: parseInt(id),
-      title: 'Comment résoudre une erreur de compilation en JavaScript ?',
-      description: 'Je rencontre une erreur de syntaxe dans mon code JavaScript et je ne comprends pas d\'où elle vient. L\'erreur que j\'obtiens est : "Unexpected token". Pouvez-vous m\'aider à comprendre ce qui ne va pas ?',
-      content: `function myFunction() {
-  console.log("Hello World")
-  return true;
-}`,
-      author: 'John Doe',
-      createdAt: '2024-01-15',
-      upvotes: 45,
-      downvotes: 3,
-      tags: ['JavaScript', 'Debug', 'Syntaxe']
-    };
-
-    const fakeAnswers = [
-      {
-        id: 1,
-        content: 'Le problème vient du fait qu\'il manque un point-virgule après console.log("Hello World") et une virgule dans votre tableau d\'objets.',
-        codeContent: `// Code corrigé
-function myFunction() {
-  console.log("Hello World"); // Point-virgule ajouté
-  return true;
-}
-
-// Tableau corrigé
-const data = [
-  { name: "John", age: 25 }, // Virgule ajoutée
-  { name: "Jane", age: 30 }
-];`,
-        author: 'Jane Smith',
-        createdAt: '2024-01-15',
-        upvotes: 23,
-        downvotes: 1,
-        isAccepted: true
-      },
-      {
-        id: 2,
-        content: 'En plus du point-virgule manquant, je recommande d\'utiliser un linter comme ESLint. Voici un exemple de configuration :',
-        codeContent: `// .eslintrc.js
-module.exports = {
-  env: {
-    browser: true,
-    es2021: true
-  },
-  extends: ['eslint:recommended'],
-  rules: {
-    'semi': ['error', 'always'],
-    'comma-dangle': ['error', 'always-multiline']
-  }
-};`,
-        author: 'Bob Wilson',
-        createdAt: '2024-01-15',
-        upvotes: 15,
-        downvotes: 0,
-        isAccepted: false
-      }
-    ];
-
-    // Simuler un délai de chargement
-    setTimeout(() => {
-      setQuestion(fakeQuestion);
-      setAnswers(fakeAnswers);
-      setLoading(false);
-    }, 500);
+    if (id) {
+      loadQuestionData();
+    }
   }, [id]);
 
+  // NOUVELLE FONCTION : Trier les réponses pour mettre les acceptées en premier
+  const sortAnswers = (answersArray) => {
+    return [...answersArray].sort((a, b) => {
+      // D'abord par statut d'acceptation (acceptées en premier)
+      if (a.IsAccepted && !b.IsAccepted) return -1;
+      if (!a.IsAccepted && b.IsAccepted) return 1;
+      
+      // Si même statut d'acceptation, trier par date (plus récent en premier)
+      const dateA = new Date(a.CreatedAt || a.createdAt);
+      const dateB = new Date(b.CreatedAt || b.createdAt);
+      return dateB - dateA;
+    });
+  };
+
+  const loadQuestionData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Charger la question
+      console.log('Chargement de la question ID:', id);
+      const questionResult = await questionService.getQuestionWithDetails(id);
+      
+      if (questionResult.success) {
+        console.log('Question chargée:', questionResult.data);
+        setQuestion(questionResult.data);
+        
+        // Charger les réponses
+        await loadAnswers(id);
+      } else {
+        console.error('Erreur lors du chargement de la question:', questionResult.error);
+        setError(questionResult.error);
+        showError(questionResult.error || 'Question non trouvée');
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      setError('Erreur de connexion au serveur');
+      showError('Erreur de connexion au serveur');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAnswers = async (questionId) => {
+    try {
+      setLoadingAnswers(true);
+      console.log('Chargement des réponses pour la question:', questionId);
+      
+      const answersResult = await answerService.getAnswersByQuestionId(questionId);
+      
+      if (answersResult.success) {
+        console.log('Réponses chargées:', answersResult.data);
+        // MODIFICATION : Trier les réponses avant de les définir
+        const sortedAnswers = sortAnswers(answersResult.data);
+        setAnswers(sortedAnswers);
+      } else {
+        console.error('Erreur lors du chargement des réponses:', answersResult.error);
+        showError('Erreur lors du chargement des réponses');
+        setAnswers([]);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des réponses:', error);
+      setAnswers([]);
+    } finally {
+      setLoadingAnswers(false);
+    }
+  };
+
   const handleSearch = (searchTerm) => {
-    console.log('Recherche:', searchTerm);
-    // Logique de recherche ici
+    if (searchTerm.trim()) {
+      // Rediriger vers la page de recherche
+      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
   };
 
-  const handleReplySubmit = (newReply) => {
-    setAnswers(prevAnswers => [...prevAnswers, newReply]);
-    setShowReplyForm(false); // Masquer le formulaire après soumission
+  const handleReplySubmit = async (newReply) => {
+    try {
+      console.log('Soumission de nouvelle réponse:', newReply);
+      
+      // Préparer les données pour l'API
+      const answerData = {
+        content: newReply.content,
+        questionId: parseInt(id),
+        codeContent: newReply.codeContent
+      };
+      
+      console.log('Données envoyées à l\'API:', answerData);
+      
+      const result = await answerService.createAnswer(answerData);
+      
+      if (result.success) {
+        showSuccess('Réponse publiée avec succès !');
+        setShowReplyForm(false);
+        
+        // Recharger les réponses pour afficher la nouvelle
+        await loadAnswers(id);
+      } else {
+        showError(result.error || 'Erreur lors de la publication de la réponse');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la soumission de la réponse:', error);
+      showError('Erreur lors de la publication de la réponse');
+    }
   };
 
-  // Nouvelle fonction pour gérer le clic sur "Reply"
   const handleReplyClick = (questionId) => {
+    if (!isAuthenticated) {
+      showWarning('Vous devez être connecté pour répondre');
+      setTimeout(() => {
+        navigate('/login', { 
+          state: { from: { pathname: `/question/${id}` } }
+        });
+      }, 1500);
+      return;
+    }
+
     console.log('Répondre à la question:', questionId);
-    setShowReplyForm(true); // Afficher le formulaire de réponse
+    setShowReplyForm(true);
   };
 
   const handleCancelReply = () => {
-    setShowReplyForm(false); // Masquer le formulaire
+    setShowReplyForm(false);
+  };
+
+  const handleAnswerUpdate = async (updatedAnswer = null) => {
+    if (updatedAnswer) {
+      // ✅ Mise à jour optimiste avec re-tri
+      setAnswers(prevAnswers => {
+        const updatedAnswers = prevAnswers.map(answer => 
+          answer.Id === updatedAnswer.Id ? updatedAnswer : answer
+        );
+        // MODIFICATION : Re-trier après la mise à jour
+        return sortAnswers(updatedAnswers);
+      });
+    } else {
+      // Rechargement complet seulement si nécessaire
+      await loadAnswers(id);
+    }
   };
 
   if (loading) {
@@ -111,11 +178,42 @@ module.exports = {
             <TitleCard />
           </div>
           <div className="mini-search-section">
-            <MiniSearchBar onSearch={handleSearch} />
+            <MiniSearchBar />
           </div>
         </div>
-        <div className="loading-section">
-          <p className="loading-text">Chargement de la question...</p>
+        <div className="content-section">
+          <div className="loading-section">
+            <p className="loading-text">Chargement de la question...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !question) {
+    return (
+      <div className="question-detail-page">
+        <div className="header-section">
+          <div className="title-section">
+            <TitleCard />
+          </div>
+          <div className="mini-search-section">
+            <MiniSearchBar />
+          </div>
+        </div>
+        <div className="content-section">
+          <div className="error-section">
+            <h2 className="error-title">Question introuvable</h2>
+            <p className="error-message">
+              {error || 'La question que vous recherchez n\'existe pas ou a été supprimée.'}
+            </p>
+            <button 
+              className="back-home-btn"
+              onClick={() => navigate('/')}
+            >
+              Retour à l'accueil
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -128,7 +226,7 @@ module.exports = {
           <TitleCard />
         </div>
         <div className="mini-search-section">
-          <MiniSearchBar onSearch={handleSearch} />
+          <MiniSearchBar />
         </div>
       </div>
 
@@ -137,13 +235,13 @@ module.exports = {
           <QuestionCard 
             question={question} 
             isDetailView={true} 
-            onReplyClick={handleReplyClick} // Passer la fonction de callback
+            onReplyClick={handleReplyClick}
           />
           
           {/* Formulaire de réponse conditionnel */}
           {showReplyForm && (
             <ReplyForm 
-              questionId={question.id} 
+              questionId={question.Id || question.id} 
               onReplySubmit={handleReplySubmit}
               onCancel={handleCancelReply}
             />
@@ -153,14 +251,57 @@ module.exports = {
         <div className="answers-section">
           <div className="answers-header">
             <h2 className="answers-title">
-              {answers.length} Réponse{answers.length > 1 ? 's' : ''}
+              {loadingAnswers ? (
+                'Chargement des réponses...'
+              ) : (
+                `${answers.length} Réponse${answers.length > 1 ? 's' : ''}`
+              )}
             </h2>
+            {/* NOUVEAU : Indicateur de tri */}
+            {answers.length > 1 && (
+              <p className="sort-indicator">
+                📌 Réponses acceptées affichées en premier
+              </p>
+            )}
           </div>
-          <div className="answers-list">
-            {answers.map((answer) => (
-              <AnswerCard key={answer.id} answer={answer} />
-            ))}
-          </div>
+          
+          {loadingAnswers ? (
+            <div className="loading-answers">
+              <p>Chargement des réponses...</p>
+            </div>
+          ) : (
+            <div className="answers-list">
+              {answers.length > 0 ? (
+                answers.map((answer) => ( // SUPPRESSION de l'index
+                  <AnswerCard 
+                    key={answer.Id || answer.id} 
+                    answer={answer}
+                    question={question}
+                    onUpdate={handleAnswerUpdate}
+                    // SUPPRESSION : isFirstAccepted={answer.IsAccepted && index === 0}
+                  />
+                ))
+              ) : (
+                <div className="no-answers">
+                  <p>Aucune réponse pour le moment.</p>
+                  {isAuthenticated ? (
+                    <p>Soyez le premier à répondre !</p>
+                  ) : (
+                    <p>
+                      <button 
+                        className="login-to-answer-btn"
+                        onClick={() => navigate('/login', { 
+                          state: { from: { pathname: `/question/${id}` } }
+                        })}
+                      >
+                        Connectez-vous pour répondre
+                      </button>
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

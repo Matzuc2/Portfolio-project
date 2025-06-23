@@ -1,23 +1,26 @@
 import User from './user.model.js';
 import Question from './question.model.js';
 import Answer from './answer.model.js';
-import Vote from './vote.model.js';
 import Tag from './tag.model.js';
+import Vote from './vote.model.js';
 
 // User associations
 User.hasMany(Question, { 
   foreignKey: 'UserId',
-  as: 'Questions'
+  as: 'Questions',
+  onDelete: 'CASCADE'
 });
 
 User.hasMany(Answer, { 
   foreignKey: 'UserId',
-  as: 'Answers'
+  as: 'Answers',
+  onDelete: 'CASCADE'
 });
 
 User.hasMany(Vote, { 
   foreignKey: 'UserId',
-  as: 'Votes'
+  as: 'Votes',
+  onDelete: 'CASCADE'
 });
 
 // Question associations
@@ -28,12 +31,14 @@ Question.belongsTo(User, {
 
 Question.hasMany(Answer, { 
   foreignKey: 'QuestionId',
-  as: 'Answers'
+  as: 'Answers',
+  onDelete: 'CASCADE'
 });
 
 Question.hasMany(Vote, { 
   foreignKey: 'QuestionId',
-  as: 'Votes'
+  as: 'Votes',
+  onDelete: 'CASCADE'
 });
 
 // Association many-to-many entre Questions et Tags
@@ -59,12 +64,13 @@ Answer.belongsTo(User, {
 
 Answer.belongsTo(Question, { 
   foreignKey: 'QuestionId',
-  as: 'Question'
+  as: 'Question' // IMPORTANT : Cette association est nécessaire pour l'acceptation
 });
 
 Answer.hasMany(Vote, { 
   foreignKey: 'AnswerId',
-  as: 'Votes'
+  as: 'Votes',
+  onDelete: 'CASCADE'
 });
 
 // Vote associations
@@ -83,12 +89,4 @@ Vote.belongsTo(Answer, {
   as: 'Answer'
 });
 
-console.log('Associations configurées avec succès');
-
-export {
-  User,
-  Question,
-  Answer,
-  Vote,
-  Tag
-};
+export { User, Question, Answer, Tag, Vote };

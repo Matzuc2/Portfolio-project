@@ -9,6 +9,10 @@ Answer.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
+  CodeSnippet: { // AJOUT : Champ pour le code
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   UserId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -24,9 +28,12 @@ Answer.init({
       model: 'Questions',
       key: 'Id'
     }
+  },
+  IsAccepted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
-},
-{
+}, {
   sequelize,
   modelName: 'Answer',
   tableName: 'Answers',

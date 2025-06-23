@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/SearchBar.css';
 
-function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
-  const [searchTerm, setSearchTerm] = useState('');
+function SearchBar({ onSearch, placeholder = "Rechercher une question...", initialValue = "" }) {
+  const [searchTerm, setSearchTerm] = useState(initialValue);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setSearchTerm(initialValue);
+  }, [initialValue]);
 
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
@@ -13,8 +19,9 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch(searchTerm);
+    if (searchTerm.trim()) {
+      // NOUVEAU : Toujours rediriger vers SearchResults au lieu de rester sur Home
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
@@ -34,6 +41,7 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
           onChange={handleInputChange}
           placeholder={placeholder}
           className="search-input"
+          title="Rechercher dans toutes les questions"
         />
         {searchTerm && (
           <button
@@ -48,6 +56,9 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question..." }) {
           🔍
         </button>
       </div>
+      <small className="search-tip">
+        💡 Tip : Appuyez sur Entrée ou cliquez sur la loupe pour rechercher
+      </small>
     </form>
   );
 }

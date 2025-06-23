@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import TagSelector from './TagSelector';
 import '../css/QuestionForm.css';
 
 function QuestionForm({ onSubmit, onDataChange, questionData, isSubmitting = false }) {
@@ -39,16 +40,10 @@ function QuestionForm({ onSubmit, onDataChange, questionData, isSubmitting = fal
     }
   };
 
-  const handleTagsChange = (e) => {
-    const tagsString = e.target.value;
-    const tagsArray = tagsString
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
-    
+  const handleTagsChange = (newTags) => {
     const newFormData = {
       ...formData,
-      tags: tagsArray
+      tags: newTags
     };
     
     setFormData(newFormData);
@@ -84,8 +79,25 @@ function QuestionForm({ onSubmit, onDataChange, questionData, isSubmitting = fal
       return;
     }
 
+    console.log('=== DEBUGGING QUESTIONFORM ===');
+    console.log('formData AVANT soumission:', formData);
+    console.log('formData.title:', formData.title);
+    console.log('formData.description:', formData.description);
+    console.log('formData.content:', formData.content);
+
+    // MODIFICATION : S'assurer que les données sont correctes
+    const submitData = {
+      title: formData.title,
+      description: formData.description,
+      content: formData.content, // LE CODE SNIPPET
+      tags: formData.tags || []
+    };
+
+    console.log('=== DONNÉES ENVOYÉES À ASKQUESTION ===');
+    console.log('submitData:', submitData);
+
     if (onSubmit) {
-      await onSubmit(formData);
+      await onSubmit(submitData);
     }
   };
 
@@ -173,19 +185,15 @@ function QuestionForm({ onSubmit, onDataChange, questionData, isSubmitting = fal
           </div>
         )}
 
-        {/* Tags */}
+        {/* Tags - NOUVEAU */}
         <div className="form-group">
-          <label htmlFor="tags" className="form-label">
-            Tags (optionnel)
+          <label className="form-label">
+            Tags (recommandé)
           </label>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            value={formData.tags.join(', ')}
-            onChange={handleTagsChange}
-            placeholder="javascript, react, css (séparés par des virgules)"
-            className="form-input"
+          <TagSelector
+            selectedTags={formData.tags}
+            onTagsChange={handleTagsChange}
+            maxTags={5}
             disabled={isSubmitting}
           />
           <small className="form-help">

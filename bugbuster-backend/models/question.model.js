@@ -1,25 +1,30 @@
-import sequelize from '../config/db.js';
 import { DataTypes } from 'sequelize';
 import BaseModel from './base.model.js';
+import sequelize from '../config/db.js';
 
 class Question extends BaseModel {}
 
 Question.init({
-  Title: { // CORRECTION : Utiliser Title avec majuscule
+  // Ordre exact selon votre table
+  Title: {                    // 5ème colonne
     type: DataTypes.STRING,
     allowNull: false
   },
-  Content: { // CORRECTION : Utiliser Content avec majuscule
+  Content: {                  // 6ème colonne
     type: DataTypes.TEXT,
     allowNull: false
   },
-  UserId: { // CORRECTION : Utiliser UserId avec majuscule pour cohérence
+  UserId: {                   // 7ème colonne
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'Users',
       key: 'Id'
     }
+  },
+  CodeSnippet: {              // 8ème colonne
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
   sequelize,

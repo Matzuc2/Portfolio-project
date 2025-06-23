@@ -1,27 +1,52 @@
 import React, { useState, useEffect } from 'react';
+import tagService from '../services/tagService';
+import { useNotification } from '../hooks/useNotification';
 import '../css/TagSelector.css';
 
 function TagSelector({ selectedTags = [], onTagsChange, maxTags = 5 }) {
+  const { showError, showSuccess } = useNotification();
   const [inputValue, setInputValue] = useState('');
   const [availableTags, setAvailableTags] = useState([]);
   const [filteredTags, setFilteredTags] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Tags prédéfinis (vous pourrez les récupérer depuis une API plus tard)
+  // Charger les tags depuis la base de données
   useEffect(() => {
-    const predefinedTags = [
-      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go',
-      'React', 'Vue.js', 'Angular', 'Node.js', 'Express', 'Django', 'Flask',
-      'HTML', 'CSS', 'SASS', 'Bootstrap', 'Tailwind',
-      'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Redis',
-      'Git', 'Docker', 'AWS', 'Azure', 'Linux', 'Windows',
-      'API', 'REST', 'GraphQL', 'JSON', 'XML',
-      'Debugging', 'Performance', 'Security', 'Testing', 'Deployment',
-      'Frontend', 'Backend', 'Fullstack', 'Mobile', 'Desktop',
-      'Algorithm', 'Data Structure', 'Database', 'Network', 'AI/ML'
-    ];
-    setAvailableTags(predefinedTags);
+    loadTags();
   }, []);
+
+  const loadTags = async () => {
+    try {
+      setLoading(true);
+      const result = await tagService.getAllTags();
+      
+      if (result.success) {
+        // Mapper les tags de la DB vers un format utilisable
+        const tagNames = result.data.map(tag => tag.Name || tag.name);
+        setAvailableTags(tagNames);
+      } else {
+        showError('Erreur lors du chargement des tags');
+        // Fallback vers des tags prédéfinis
+        setAvailableTags(getFallbackTags());
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des tags:', error);
+      setAvailableTags(getFallbackTags());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getFallbackTags = () => [
+    'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go',
+    'React', 'Vue.js', 'Angular', 'Node.js', 'Express', 'Django', 'Flask',
+    'HTML', 'CSS', 'SASS', 'Bootstrap', 'Tailwind',
+    'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Redis',
+    'Git', 'Docker', 'AWS', 'Azure', 'Linux', 'Windows',
+    'API', 'REST', 'GraphQL', 'JSON', 'XML',
+    'Debugging', 'Performance', 'Security', 'Testing', 'Deployment'
+  ];
 
   // Filtrer les tags basés sur l'input
   useEffect(() => {
@@ -47,22 +72,39 @@ function TagSelector({ selectedTags = [], onTagsChange, maxTags = 5 }) {
       e.preventDefault();
       addTag(inputValue.trim());
     } else if (e.key === 'Backspace' && !inputValue && selectedTags.length > 0) {
-      // Supprimer le dernier tag si l'input est vide
       removeTag(selectedTags[selectedTags.length - 1]);
     }
   };
 
-  const addTag = (tagName) => {
+  const addTag = async (tagName) => {
     if (!tagName) return;
     
     if (selectedTags.length >= maxTags) {
-      alert(`Vous ne pouvez pas ajouter plus de ${maxTags} tags`);
+      showError(`Vous ne pouvez pas ajouter plus de ${maxTags} tags`);
       return;
     }
 
     if (selectedTags.includes(tagName)) {
-      alert('Ce tag est déjà ajouté');
+      showError('Ce tag est déjà ajouté');
       return;
+    }
+
+    // Vérifier si le tag existe, sinon le créer
+    if (!availableTags.includes(tagName)) {
+      try {
+        const result = await tagService.createTag(tagName);
+        if (result.success) {
+          showSuccess(`Tag "${tagName}" créé avec succès`);
+          setAvailableTags(prev => [...prev, tagName]);
+        } else {
+          showError(result.error || 'Erreur lors de la création du tag');
+          return;
+        }
+      } catch (error) {
+        console.error('Erreur lors de la création du tag:', error);
+        showError('Erreur lors de la création du tag');
+        return;
+      }
     }
 
     const newTags = [...selectedTags, tagName];
@@ -78,6 +120,11 @@ function TagSelector({ selectedTags = [], onTagsChange, maxTags = 5 }) {
 
   const handleSuggestionClick = (tag) => {
     addTag(tag);
+  };
+
+  const getPopularTags = () => {
+    // Prendre les 6 premiers tags les plus populaires
+    return availableTags.slice(0, 6);
   };
 
   return (
@@ -105,7 +152,7 @@ function TagSelector({ selectedTags = [], onTagsChange, maxTags = 5 }) {
           onKeyDown={handleInputKeyDown}
           placeholder={selectedTags.length === 0 ? "Tapez pour rechercher des tags..." : ""}
           className="tag-input"
-          disabled={selectedTags.length >= maxTags}
+          disabled={selectedTags.length >= maxTags || loading}
         />
       </div>
 
@@ -128,14 +175,15 @@ function TagSelector({ selectedTags = [], onTagsChange, maxTags = 5 }) {
       {/* Compteur de tags */}
       <div className="tag-counter">
         {selectedTags.length}/{maxTags} tags sélectionnés
+        {loading && <span className="loading-indicator"> (Chargement...)</span>}
       </div>
 
       {/* Tags populaires */}
-      {selectedTags.length === 0 && (
+      {selectedTags.length === 0 && !loading && (
         <div className="popular-tags">
           <p className="popular-tags-title">Tags populaires :</p>
           <div className="popular-tags-list">
-            {['JavaScript', 'React', 'Python', 'CSS', 'Node.js', 'API'].map((tag, index) => (
+            {getPopularTags().map((tag, index) => (
               <button
                 key={index}
                 type="button"
