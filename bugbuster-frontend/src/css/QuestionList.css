@@ -269,3 +269,135 @@
     padding: 3px 6px;
   }
 }
+
+/* AJOUT dans QuestionList.css */
+
+/* Statistiques de la question */
+.question-stats {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 50px;
+}
+
+.stat-item.votes {
+  border-right: 1px solid rgba(138, 43, 226, 0.3);
+  padding-right: 15px;
+}
+
+.stat-item.answers {
+  border-right: 1px solid rgba(138, 43, 226, 0.3);
+  padding-right: 15px;
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 5px #8a2be2;
+}
+
+.stat-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+  color: #ccc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Statistiques spéciales */
+.stat-item.votes .stat-value {
+  color: #00ff88;
+  text-shadow: 0 0 5px #00ff88;
+}
+
+.stat-item.answers .stat-value {
+  color: #de59e5;
+  text-shadow: 0 0 5px #de59e5;
+}
+
+.stat-item.accepted {
+  flex-direction: row;
+  gap: 5px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid #00ff88;
+  border-radius: 15px;
+  padding: 5px 10px;
+}
+
+.accepted-icon {
+  font-size: 14px;
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.stat-item.accepted .stat-label {
+  color: #00ff88;
+  font-size: 10px;
+}
+
+/* Responsive pour les statistiques */
+@media (max-width: 768px) {
+  .question-stats {
+    gap: 10px;
+    padding: 8px;
+  }
+  
+  .stat-item {
+    min-width: 40px;
+  }
+  
+  .stat-value {
+    font-size: 16px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
+  
+  .stat-item.votes,
+  .stat-item.answers {
+    padding-right: 10px;
+  }
+}
+
+/* Animation pour les statistiques */
+.question-stats {
+  animation: statsSlideIn 0.3s ease-out;
+}
+
+@keyframes statsSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover effect pour les cartes avec statistiques */
+.question-card:hover .question-stats {
+  background: rgba(138, 43, 226, 0.2);
+  border-color: #8a2be2;
+  transition: all 0.3s ease;
+}
+
+.question-card:hover .stat-value {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}

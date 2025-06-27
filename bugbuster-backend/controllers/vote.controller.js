@@ -1,4 +1,6 @@
 import Vote from '../models/vote.model.js';
+import Question from '../models/question.model.js';
+import Answer from '../models/answer.model.js';
 
 /**
  * Récupérer tous les votes
@@ -72,18 +74,29 @@ export const getVotesByAnswerId = async (req, res) => {
 export const voteQuestion = async (req, res) => {
   try {
     const { questionId, vote_type } = req.body;
-    const userId = req.user.Id; // CORRECTION : Utiliser Id avec majuscule
+    const userId = req.user.Id;
 
-    console.log('Vote data:', { questionId, vote_type, userId }); // Debug
+    console.log('Vote data:', { questionId, vote_type, userId });
 
     if (!userId) {
       return res.status(401).json({ error: 'Utilisateur non authentifié' });
     }
 
+    // VALIDATION : Vérifier que la question existe
+    const question = await Question.findByPk(questionId);
+    if (!question) {
+      return res.status(404).json({ error: 'Question non trouvée' });
+    }
+
+    // VALIDATION : Empêcher l'auto-vote
+    if (question.UserId === userId) {
+      return res.status(400).json({ error: 'Vous ne pouvez pas voter pour votre propre question' });
+    }
+
     // Vérifier si l'utilisateur a déjà voté pour cette question
     const existingVote = await Vote.findOne({
       where: { 
-        UserId: userId, // CORRECTION : Utiliser UserId
+        UserId: userId,
         QuestionId: questionId,
         AnswerId: null
       }
@@ -103,10 +116,10 @@ export const voteQuestion = async (req, res) => {
 
     // Créer un nouveau vote
     const newVote = await Vote.create({
-      UserId: userId, // CORRECTION : Utiliser UserId
+      UserId: userId,
       QuestionId: questionId,
       AnswerId: null,
-      VoteType: vote_type // CORRECTION : Utiliser VoteType
+      VoteType: vote_type
     });
 
     res.status(201).json({
@@ -125,16 +138,27 @@ export const voteQuestion = async (req, res) => {
 export const voteAnswer = async (req, res) => {
   try {
     const { answerId, vote_type } = req.body;
-    const userId = req.user.Id; // CORRECTION
+    const userId = req.user.Id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Utilisateur non authentifié' });
     }
 
+    // VALIDATION : Vérifier que la réponse existe
+    const answer = await Answer.findByPk(answerId);
+    if (!answer) {
+      return res.status(404).json({ error: 'Réponse non trouvée' });
+    }
+
+    // VALIDATION : Empêcher l'auto-vote
+    if (answer.UserId === userId) {
+      return res.status(400).json({ error: 'Vous ne pouvez pas voter pour votre propre réponse' });
+    }
+
     // Vérifier si l'utilisateur a déjà voté pour cette réponse
     const existingVote = await Vote.findOne({
       where: { 
-        UserId: userId, // CORRECTION
+        UserId: userId,
         AnswerId: answerId
       }
     });
@@ -153,10 +177,10 @@ export const voteAnswer = async (req, res) => {
 
     // Créer un nouveau vote
     const newVote = await Vote.create({
-      UserId: userId, // CORRECTION
+      UserId: userId,
       QuestionId: null,
       AnswerId: answerId,
-      VoteType: vote_type // CORRECTION
+      VoteType: vote_type
     });
 
     res.status(201).json({

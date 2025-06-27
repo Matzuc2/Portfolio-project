@@ -80,7 +80,16 @@ const answerService = {
   // Mettre à jour une réponse
   updateAnswer: async (id, answerData) => {
     try {
-      const response = await api.put(`/answers/${id}`, answerData);
+      console.log('Mise à jour de la réponse:', { id, answerData });
+      
+      const payload = {
+        content: answerData.content,
+        codeSnippet: answerData.codeSnippet || null
+      };
+      
+      console.log('Payload envoyé pour la mise à jour:', payload);
+      
+      const response = await api.put(`/answers/${id}`, payload);
       return { 
         success: true, 
         data: response.data 
@@ -97,6 +106,8 @@ const answerService = {
   // Supprimer une réponse
   deleteAnswer: async (id) => {
     try {
+      console.log('Suppression de la réponse:', id);
+      
       const response = await api.delete(`/answers/${id}`);
       return { 
         success: true, 

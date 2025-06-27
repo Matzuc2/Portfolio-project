@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../hooks/useNotification';
-import voteService from '../services/voteService';
 import answerService from '../services/answerService';
+import voteService from '../services/voteService';
+import EditAnswerModal from './EditAnswerModal';
 import '../css/AnswerCard.css';
 
 function AnswerCard({ answer, onUpdate, question }) {
@@ -19,6 +20,8 @@ function AnswerCard({ answer, onUpdate, question }) {
   const [isVoting, setIsVoting] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
   const [localAnswer, setLocalAnswer] = useState(answer);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Synchroniser l'état local avec les props
   useEffect(() => {
@@ -59,8 +62,23 @@ function AnswerCard({ answer, onUpdate, question }) {
     event.preventDefault();
     event.stopPropagation();
     
+    console.log('AnswerCard - handleVote appelé:', { voteType, isAuthenticated });
+    
+    // SIMPLIFIER la vérification d'authentification
     if (!isAuthenticated) {
+      console.log('AnswerCard - Utilisateur non authentifié');
       showWarning('Vous devez être connecté pour voter');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+
+    // VÉRIFICATION du token
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      console.log('AnswerCard - Pas de token disponible');
+      showWarning('Session expirée, veuillez vous reconnecter');
       setTimeout(() => {
         navigate('/login');
       }, 1500);
@@ -72,7 +90,11 @@ function AnswerCard({ answer, onUpdate, question }) {
     setIsVoting(true);
     
     try {
+      console.log('AnswerCard - Tentative de vote pour réponse:', localAnswer.Id);
+      
       const result = await voteService.voteAnswer(localAnswer.Id, voteType);
+      
+      console.log('AnswerCard - Résultat du vote:', result);
       
       if (result.success) {
         await loadVoteData();
@@ -85,10 +107,11 @@ function AnswerCard({ answer, onUpdate, question }) {
           showSuccess('Vote enregistré');
         }
       } else {
+        console.error('AnswerCard - Erreur de vote:', result.error);
         showError(result.error || 'Erreur lors du vote');
       }
     } catch (error) {
-      console.error('Erreur lors du vote:', error);
+      console.error('AnswerCard - Erreur lors du vote:', error);
       showError('Erreur lors du vote');
     } finally {
       setIsVoting(false);
@@ -143,7 +166,7 @@ function AnswerCard({ answer, onUpdate, question }) {
     }
   };
 
-  // Vérifier si l'utilisateur connecté est l'auteur de la question
+  // NOUVELLE FONCTION: Vérifier si l'utilisateur est l'auteur de la question
   const isQuestionAuthor = () => {
     if (!isAuthenticated || !question) return false;
     
@@ -153,10 +176,65 @@ function AnswerCard({ answer, onUpdate, question }) {
     return currentUserId === questionUserId;
   };
 
+  // NOUVELLE FONCTION: Vérifier si l'utilisateur est l'auteur de la réponse
+  const isAnswerAuthor = () => {
+    if (!isAuthenticated) return false;
+    const currentUserId = getCurrentUserId();
+    const answerUserId = localAnswer?.UserId || localAnswer?.User?.Id;
+    return currentUserId === answerUserId;
+  };
+
+  // NOUVELLE FONCTION: Gérer l'édition
+  const handleEdit = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setShowEditModal(true);
+  };
+
+  // NOUVELLE FONCTION: Gérer la suppression
+  const handleDelete = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette réponse ? Cette action est irréversible.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      const result = await answerService.deleteAnswer(localAnswer.Id);
+      
+      if (result.success) {
+        showSuccess('Réponse supprimée avec succès');
+        
+        // Notifier le parent pour retirer la réponse de la liste
+        if (onUpdate) {
+          onUpdate(null, 'delete', localAnswer.Id);
+        }
+      } else {
+        showError(result.error || 'Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      showError('Erreur lors de la suppression');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // NOUVELLE FONCTION: Gérer la mise à jour
+  const handleAnswerUpdate = (updatedAnswer) => {
+    setShowEditModal(false);
+    setLocalAnswer(updatedAnswer);
+    if (onUpdate) {
+      onUpdate(updatedAnswer);
+    }
+    showSuccess('Réponse mise à jour avec succès');
+  };
+
   return (
     <div className={`answer-card ${localAnswer.IsAccepted ? 'accepted' : ''}`}>
-      {/* SUPPRESSION du badge "Meilleure réponse" */}
-      
       {localAnswer.IsAccepted && (
         <div className="accepted-badge">
           ✓ Réponse acceptée
@@ -176,41 +254,69 @@ function AnswerCard({ answer, onUpdate, question }) {
               🏆 Acceptée !
             </span>
           )}
+          
+          {/* NOUVEAU: Actions pour l'auteur */}
+          {isAnswerAuthor() && (
+            <div className="answer-author-actions">
+              <button 
+                className="edit-answer-btn"
+                onClick={handleEdit}
+                title="Modifier la réponse"
+              >
+                ✏️ Modifier
+              </button>
+              <button 
+                className="delete-answer-btn"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                title="Supprimer la réponse"
+              >
+                {isDeleting ? '⏳' : '🗑️'} Supprimer
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="answer-body">
-        <p className="answer-content">{localAnswer.Body}</p>
+        <p className="answer-content">
+          {localAnswer.Body}
+        </p>
         
+        {/* Code snippet dans les réponses */}
         {localAnswer.CodeSnippet && (
           <div className="answer-code-section">
-            <pre className="answer-code">{localAnswer.CodeSnippet}</pre>
+            <div className="code-header">
+              <span className="code-label">📝 Code :</span>
+            </div>
+            <pre className="answer-code">
+              {localAnswer.CodeSnippet}
+            </pre>
           </div>
         )}
       </div>
 
       <div className="answer-footer">
+        {/* Bouton d'acceptation - seulement pour l'auteur de la question */}
         {isQuestionAuthor() && (
           <button 
-            type="button"
-            className={`accept-btn ${localAnswer.IsAccepted ? 'unaccept' : ''}`}
+            className={`accept-btn ${localAnswer.IsAccepted ? 'accepted' : ''}`}
             onClick={handleAcceptAnswer}
             disabled={isAccepting}
-            title={localAnswer.IsAccepted ? "Annuler l'acceptation" : "Accepter cette réponse comme solution"}
           >
             {isAccepting ? (
-              '⏳ Modification...'
+              '⏳ Traitement...'
             ) : localAnswer.IsAccepted ? (
-              '❌ Annuler l\'acceptation'
+              '❌ Désaccepter'
             ) : (
               '✅ Accepter cette réponse'
             )}
           </button>
         )}
 
+        {/* Votes - toujours à droite */}
         <div className="answer-votes">
           <button 
-            type="button"
             className={`vote-btn upvote-btn ${voteData.userVote === true ? 'active' : ''}`}
             onClick={(e) => handleVote(true, e)}
             disabled={isVoting}
@@ -218,7 +324,6 @@ function AnswerCard({ answer, onUpdate, question }) {
             ▲ {voteData.upvotes}
           </button>
           <button 
-            type="button"
             className={`vote-btn downvote-btn ${voteData.userVote === false ? 'active' : ''}`}
             onClick={(e) => handleVote(false, e)}
             disabled={isVoting}
@@ -230,6 +335,15 @@ function AnswerCard({ answer, onUpdate, question }) {
           </span>
         </div>
       </div>
+
+      {/* NOUVEAU: Modal d'édition */}
+      {showEditModal && (
+        <EditAnswerModal 
+          answer={localAnswer}
+          onSave={handleAnswerUpdate}
+          onCancel={() => setShowEditModal(false)}
+        />
+      )}
     </div>
   );
 }

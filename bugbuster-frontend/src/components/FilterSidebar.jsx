@@ -284,75 +284,68 @@ function FilterSidebar({ onFiltersChange, initialFilters = {} }) {
         )}
       </div>
 
-      {/* Tri */}
+      {/* NOUVEAU: Filtre par statut */}
       <div className="filter-section">
-        <button
-          className="filter-section-header"
-          onClick={() => toggleSection('sort')}
-        >
-          Trier par
-          <span className={`expand-icon ${expandedSections.sort ? 'expanded' : ''}`}>
-            ▼
-          </span>
-        </button>
-        {expandedSections.sort && (
-          <div className="filter-section-content">
-            <div className="sort-options">
-              <div className="sort-option">
-                <input
-                  type="radio"
-                  id="sort-newest"
-                  name="sortBy"
-                  value="newest"
-                  checked={filters.sortBy === 'newest'}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                />
-                <label htmlFor="sort-newest" className="sort-option-label">
-                  Plus récent
-                </label>
-              </div>
-              <div className="sort-option">
-                <input
-                  type="radio"
-                  id="sort-oldest"
-                  name="sortBy"
-                  value="oldest"
-                  checked={filters.sortBy === 'oldest'}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                />
-                <label htmlFor="sort-oldest" className="sort-option-label">
-                  Plus ancien
-                </label>
-              </div>
-              <div className="sort-option">
-                <input
-                  type="radio"
-                  id="sort-votes"
-                  name="sortBy"
-                  value="most-votes"
-                  checked={filters.sortBy === 'most-votes'}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                />
-                <label htmlFor="sort-votes" className="sort-option-label">
-                  Plus de votes
-                </label>
-              </div>
-              <div className="sort-option">
-                <input
-                  type="radio"
-                  id="sort-answers"
-                  name="sortBy"
-                  value="most-answers"
-                  checked={filters.sortBy === 'most-answers'}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                />
-                <label htmlFor="sort-answers" className="sort-option-label">
-                  Plus de réponses
-                </label>
-              </div>
+        <div className="filter-section-header">
+          <h4 className="filter-section-title">Statut</h4>
+        </div>
+        <div className="filter-section-content">
+          <div className="activity-options">
+            <div className="activity-option">
+              <input
+                type="checkbox"
+                id="is-resolved"
+                checked={filters.isResolved === true}
+                onChange={(e) => handleFilterChange('isResolved', e.target.checked ? true : undefined)}
+              />
+              <label htmlFor="is-resolved" className="activity-option-label">
+                ✓ Résolu (avec réponse acceptée)
+              </label>
+            </div>
+            <div className="activity-option">
+              <input
+                type="checkbox"
+                id="has-answers"
+                checked={filters.hasAnswers === true}
+                onChange={(e) => handleFilterChange('hasAnswers', e.target.checked ? true : undefined)}
+              />
+              <label htmlFor="has-answers" className="activity-option-label">
+                💬 A des réponses
+              </label>
+            </div>
+            <div className="activity-option">
+              <input
+                type="checkbox"
+                id="no-answers"
+                checked={filters.hasAnswers === false}
+                onChange={(e) => handleFilterChange('hasAnswers', e.target.checked ? false : undefined)}
+              />
+              <label htmlFor="no-answers" className="activity-option-label">
+                ❓ Sans réponse
+              </label>
             </div>
           </div>
-        )}
+        </div>
+      </div>
+
+      {/* Tri */}
+      <div className="filter-section">
+        <div className="filter-section-header">
+          <h4 className="filter-section-title">Trier par</h4>
+        </div>
+        <div className="filter-section-content">
+          <select 
+            value={filters.sortBy || 'newest'} 
+            onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+            className="sort-select"
+          >
+            <option value="newest">Plus récent</option>
+            <option value="oldest">Plus ancien</option>
+            <option value="most-votes">Plus de votes</option>
+            <option value="most-answers">Plus de réponses</option>
+            <option value="unanswered">Sans réponse</option>
+          </select>
+        </div>
       </div>
 
       {/* Date */}

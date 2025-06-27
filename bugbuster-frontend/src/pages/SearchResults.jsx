@@ -31,7 +31,7 @@ function SearchResults() {
     }
   }, [searchParams, navigate]);
 
-  // Charger les questions
+  // Charger les questions avec statistiques
   useEffect(() => {
     if (searchQuery) {
       loadQuestions();
@@ -46,6 +46,7 @@ function SearchResults() {
   const loadQuestions = async () => {
     try {
       setLoading(true);
+      // MODIFICATION : Utiliser le même service avec statistiques
       const result = await questionService.getAllQuestions();
       
       if (result.success) {
@@ -79,7 +80,7 @@ function SearchResults() {
           case 'content':
             return content.toLowerCase().includes(searchLower);
           case 'tags':
-            // TODO: Implémenter la recherche par tags quand les tags seront liés aux questions
+            // TODO: Implémenter la recherche par tags
             return false;
           default: // 'all'
             return title.toLowerCase().includes(searchLower) || 
@@ -88,10 +89,20 @@ function SearchResults() {
       });
     }
 
-    // Filtre par tags
-    if (filters.tags && filters.tags.length > 0) {
-      // TODO: Implémenter le filtrage par tags quand les tags seront liés aux questions
-      // Pour l'instant, on simule avec des données factices
+    // NOUVEAU: Filtre par statut de résolution
+    if (filters.isResolved !== undefined) {
+      filtered = filtered.filter(question => {
+        const hasAcceptedAnswer = question.stats?.hasAcceptedAnswer || false;
+        return filters.isResolved ? hasAcceptedAnswer : !hasAcceptedAnswer;
+      });
+    }
+
+    // NOUVEAU: Filtre par nombre de réponses
+    if (filters.hasAnswers !== undefined) {
+      filtered = filtered.filter(question => {
+        const answerCount = question.stats?.answerCount || 0;
+        return filters.hasAnswers ? answerCount > 0 : answerCount === 0;
+      });
     }
 
     // Filtre par date
@@ -107,16 +118,24 @@ function SearchResults() {
       });
     }
 
-    // Tri
+    // Tri avec nouvelles options
     if (filters.sortBy) {
       filtered = [...filtered].sort((a, b) => {
         switch (filters.sortBy) {
           case 'oldest':
             return new Date(a.CreatedAt || a.createdAt) - new Date(b.CreatedAt || b.createdAt);
           case 'most-votes':
-            return (b.votes || 0) - (a.votes || 0);
+            const scoreA = a.stats?.score || 0;
+            const scoreB = b.stats?.score || 0;
+            return scoreB - scoreA;
           case 'most-answers':
-            return (b.answerCount || 0) - (a.answerCount || 0);
+            const answersA = a.stats?.answerCount || 0;
+            const answersB = b.stats?.answerCount || 0;
+            return answersB - answersA;
+          case 'unanswered':
+            const hasAnswersA = (a.stats?.answerCount || 0) > 0 ? 1 : 0;
+            const hasAnswersB = (b.stats?.answerCount || 0) > 0 ? 1 : 0;
+            return hasAnswersA - hasAnswersB;
           default: // 'newest'
             return new Date(b.CreatedAt || b.createdAt) - new Date(a.CreatedAt || a.createdAt);
         }
@@ -131,42 +150,23 @@ function SearchResults() {
     setFilters(newFilters);
   };
 
-  const handleSearch = (newQuery) => {
-    if (newQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(newQuery)}`);
-    } else {
-      navigate('/');
-    }
-  };
-
-  if (!searchQuery) {
-    return null; // Redirection en cours
-  }
-
   return (
     <div className="search-results-page">
-      {/* Header */}
-      <div className="search-header">
-        <div className="search-title-section">
+      <div className="header-section">
+        <div className="title-section">
           <TitleCard />
         </div>
-        <div className="search-mini-search-section">
-          <MiniSearchBar />
+        <div className="mini-search-section">
+          <MiniSearchBar initialValue={searchQuery} />
         </div>
       </div>
 
-      {/* Contenu principal */}
       <div className="search-content">
-        {/* Sidebar des filtres */}
-        <div className="search-sidebar">
-          <FilterSidebar
-            onFiltersChange={handleFiltersChange}
-            initialFilters={{
-              searchType: 'all',
-              sortBy: 'newest'
-            }}
-          />
-        </div>
+        {/* Sidebar de filtres */}
+        <FilterSidebar 
+          onFiltersChange={handleFiltersChange}
+          totalResults={totalResults}
+        />
 
         {/* Résultats */}
         <div className="search-main">
@@ -184,7 +184,7 @@ function SearchResults() {
             </div>
           </div>
 
-          {/* Liste des questions */}
+          {/* Liste des questions avec statistiques */}
           <div className="results-list">
             {loading ? (
               <div className="loading-results">
@@ -200,17 +200,14 @@ function SearchResults() {
                 <div className="no-results-icon">🔍</div>
                 <h3 className="no-results-title">Aucun résultat trouvé</h3>
                 <p className="no-results-message">
-                  Essayez de modifier vos termes de recherche ou vos filtres.
+                  Essayez de modifier vos critères de recherche ou filtres.
                 </p>
-                <div className="no-results-suggestions">
-                  <h4>Suggestions :</h4>
-                  <ul>
-                    <li>Vérifiez l'orthographe de vos mots-clés</li>
-                    <li>Utilisez des termes plus généraux</li>
-                    <li>Essayez différents mots-clés</li>
-                    <li>Supprimez certains filtres</li>
-                  </ul>
-                </div>
+                <button 
+                  className="back-to-home-btn"
+                  onClick={() => navigate('/')}
+                >
+                  Retour à l'accueil
+                </button>
               </div>
             )}
           </div>

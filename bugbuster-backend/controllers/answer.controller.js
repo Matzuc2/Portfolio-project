@@ -135,8 +135,10 @@ export const createAnswer = async (req, res) => {
 export const updateAnswer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { content } = req.body;
-    const userId = req.user.Id; // CORRECTION : Utiliser Id avec majuscule
+    const { content, codeSnippet } = req.body; // AJOUT: codeSnippet
+    const userId = req.user.Id;
+
+    console.log('Mise à jour de la réponse:', { id, userId, content, codeSnippet });
 
     const answer = await Answer.findByPk(id);
     
@@ -144,20 +146,46 @@ export const updateAnswer = async (req, res) => {
       return res.status(404).json({ error: 'Réponse non trouvée' });
     }
     
-    // Vérifiez que l'utilisateur est bien le propriétaire de la réponse
-    if (answer.UserId !== userId) { // CORRECTION : Utiliser UserId
-      return res.status(403).json({ error: 'Non autorisé à modifier cette réponse' });
+    // VÉRIFICATION: Seul l'auteur peut modifier
+    if (answer.UserId !== userId) {
+      return res.status(403).json({ 
+        error: 'Vous n\'êtes pas autorisé à modifier cette réponse' 
+      });
+    }
+
+    // Validation des données
+    if (!content) {
+      return res.status(400).json({ 
+        error: 'Le contenu est obligatoire' 
+      });
     }
     
-    await answer.update({ Content: content }); // CORRECTION : Utiliser Content
+    await answer.update({ 
+      Body: content,
+      CodeSnippet: codeSnippet || null // AJOUT: Mise à jour du code snippet
+    });
+
+    // Récupérer la réponse mise à jour avec les données utilisateur
+    const updatedAnswer = await Answer.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'User',
+          attributes: ['Id', 'Username']
+        }
+      ]
+    });
     
     res.status(200).json({
       message: 'Réponse mise à jour avec succès',
-      answer
+      answer: updatedAnswer
     });
   } catch (error) {
     console.error('Erreur dans updateAnswer:', error);
-    res.status(500).json({ error: 'Erreur lors de la mise à jour de la réponse' });
+    res.status(500).json({ 
+      error: 'Erreur lors de la mise à jour de la réponse',
+      details: error.message 
+    });
   }
 };
 
@@ -167,7 +195,9 @@ export const updateAnswer = async (req, res) => {
 export const deleteAnswer = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.Id; // CORRECTION : Utiliser Id avec majuscule
+    const userId = req.user.Id;
+
+    console.log('Suppression de la réponse:', { id, userId });
 
     const answer = await Answer.findByPk(id);
     
@@ -175,9 +205,11 @@ export const deleteAnswer = async (req, res) => {
       return res.status(404).json({ error: 'Réponse non trouvée' });
     }
     
-    // Vérifiez que l'utilisateur est bien le propriétaire de la réponse
-    if (answer.UserId !== userId) { // CORRECTION : Utiliser UserId
-      return res.status(403).json({ error: 'Non autorisé à supprimer cette réponse' });
+    // VÉRIFICATION: Seul l'auteur peut supprimer
+    if (answer.UserId !== userId) {
+      return res.status(403).json({ 
+        error: 'Vous n\'êtes pas autorisé à supprimer cette réponse' 
+      });
     }
     
     await answer.destroy();
@@ -187,7 +219,10 @@ export const deleteAnswer = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur dans deleteAnswer:', error);
-    res.status(500).json({ error: 'Erreur lors de la suppression de la réponse' });
+    res.status(500).json({ 
+      error: 'Erreur lors de la suppression de la réponse',
+      details: error.message 
+    });
   }
 };
 

@@ -154,18 +154,23 @@ function QuestionDetail() {
     setShowReplyForm(false);
   };
 
-  const handleAnswerUpdate = async (updatedAnswer = null) => {
-    if (updatedAnswer) {
-      // ✅ Mise à jour optimiste avec re-tri
+  const handleAnswerUpdate = async (updatedAnswer = null, action = 'update', answerId = null) => {
+    if (action === 'delete' && answerId) {
+      // Retirer la réponse supprimée de la liste
+      setAnswers(prevAnswers => {
+        const filteredAnswers = prevAnswers.filter(answer => answer.Id !== answerId);
+        return sortAnswers(filteredAnswers);
+      });
+    } else if (updatedAnswer) {
+      // Mise à jour normale
       setAnswers(prevAnswers => {
         const updatedAnswers = prevAnswers.map(answer => 
           answer.Id === updatedAnswer.Id ? updatedAnswer : answer
         );
-        // MODIFICATION : Re-trier après la mise à jour
         return sortAnswers(updatedAnswers);
       });
     } else {
-      // Rechargement complet seulement si nécessaire
+      // Rechargement complet si nécessaire
       await loadAnswers(id);
     }
   };

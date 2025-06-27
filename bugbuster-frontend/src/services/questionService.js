@@ -104,7 +104,18 @@ const questionService = {
   // Mettre à jour une question
   updateQuestion: async (id, questionData) => {
     try {
-      const response = await api.put(`/questions/${id}`, questionData);
+      console.log('Mise à jour de la question:', { id, questionData });
+      
+      const payload = {
+        title: questionData.title,
+        content: questionData.content || questionData.description,
+        codeSnippet: questionData.codeSnippet || null,
+        tags: questionData.tags || []
+      };
+      
+      console.log('Payload envoyé pour la mise à jour:', payload);
+      
+      const response = await api.put(`/questions/${id}`, payload);
       return {
         success: true,
         data: response.data
@@ -121,6 +132,8 @@ const questionService = {
   // Supprimer une question
   deleteQuestion: async (id) => {
     try {
+      console.log('Suppression de la question:', id);
+      
       const response = await api.delete(`/questions/${id}`);
       return {
         success: true,

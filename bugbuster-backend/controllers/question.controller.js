@@ -1,6 +1,7 @@
 import Question from '../models/question.model.js';
 import Answer from '../models/answer.model.js';
 import User from '../models/user.model.js';
+import Vote from '../models/vote.model.js'; // AJOUT : Import manquant
 
 /**
  * Récupérer une question par ID
@@ -12,7 +13,7 @@ export const getQuestionById = async (req, res) => {
         {
           model: User,
           as: 'User',
-          attributes: ['Id', 'Username'] // CORRECTION : Seulement Id et Username, PAS d'Email
+          attributes: ['Id', 'Username']
         }
       ]
     });
@@ -29,7 +30,7 @@ export const getQuestionById = async (req, res) => {
 };
 
 /**
- * Récupérer toutes les questions
+ * Récupérer toutes les questions avec statistiques
  */
 export const getAllQuestions = async (req, res) => {
   try {
@@ -38,13 +39,51 @@ export const getAllQuestions = async (req, res) => {
         {
           model: User,
           as: 'User',
-          attributes: ['Id', 'Username'] // CORRECTION : Seulement Username
+          attributes: ['Id', 'Username']
         }
       ],
       order: [['CreatedAt', 'DESC']]
     });
+
+    // Calculer les statistiques pour chaque question
+    const questionsWithStats = await Promise.all(questions.map(async (question) => {
+      // Compter les réponses
+      const answerCount = await Answer.count({
+        where: { QuestionId: question.Id }
+      });
+
+      // Compter les votes - MAINTENANT Vote est importé
+      const votes = await Vote.findAll({
+        where: { 
+          QuestionId: question.Id,
+          AnswerId: null 
+        }
+      });
+
+      const upvotes = votes.filter(vote => vote.VoteType === true).length;
+      const downvotes = votes.filter(vote => vote.VoteType === false).length;
+
+      // Vérifier s'il y a une réponse acceptée
+      const hasAcceptedAnswer = await Answer.count({
+        where: { 
+          QuestionId: question.Id,
+          IsAccepted: true 
+        }
+      }) > 0;
+
+      return {
+        ...question.toJSON(),
+        stats: {
+          answerCount,
+          upvotes,
+          downvotes,
+          score: upvotes - downvotes,
+          hasAcceptedAnswer
+        }
+      };
+    }));
     
-    res.status(200).json(questions);
+    res.status(200).json(questionsWithStats);
   } catch (error) {
     console.error('Erreur dans getAllQuestions:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération des questions' });
@@ -62,7 +101,7 @@ export const getAnswersByQuestionId = async (req, res) => {
         {
           model: User,
           as: 'User',
-          attributes: ['Id', 'Username'] // CORRECTION : Seulement Username
+          attributes: ['Id', 'Username']
         }
       ],
       order: [
@@ -87,8 +126,7 @@ export const createQuestion = async (req, res) => {
     console.log('Données reçues pour créer une question:', req.body);
     console.log('Utilisateur authentifié:', req.user);
 
-    // CORRECTION : Mapper dans l'ordre exact de la table
-    const userId = req.user.Id;          // UserId en premier (nécessaire pour validation)
+    const userId = req.user.Id;
     const title = req.body.title || req.body.Title;
     const content = req.body.content || req.body.Content;
     const codeSnippet = req.body.codeSnippet || req.body.CodeSnippet;
@@ -108,12 +146,12 @@ export const createQuestion = async (req, res) => {
       return res.status(400).json({ error: 'Le titre et le contenu sont obligatoires' });
     }
 
-    // CORRECTION : Créer avec l'ordre exact des champs de la table
+    // Créer avec l'ordre exact des champs de la table
     const questionData = {
-      Title: title,           // 5ème position
-      Content: content,       // 6ème position  
-      UserId: userId,         // 7ème position
-      CodeSnippet: codeSnippet || null  // 8ème position
+      Title: title,
+      Content: content,
+      UserId: userId,
+      CodeSnippet: codeSnippet || null
     };
 
     console.log('Données pour la création en DB (ordre respecté):', questionData);
@@ -141,8 +179,10 @@ export const createQuestion = async (req, res) => {
 export const updateQuestion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, content } = req.body;
-    const userId = req.user.Id; // CORRECTION
+    const { title, content, codeSnippet } = req.body;
+    const userId = req.user.Id;
+
+    console.log('Mise à jour de la question:', { id, userId, title, content, codeSnippet });
 
     const question = await Question.findByPk(id);
     
@@ -150,22 +190,47 @@ export const updateQuestion = async (req, res) => {
       return res.status(404).json({ error: 'Question non trouvée' });
     }
     
-    if (question.UserId !== userId) { // CORRECTION : Utiliser UserId
-      return res.status(403).json({ error: 'Non autorisé à modifier cette question' });
+    // VÉRIFICATION: Seul l'auteur peut modifier
+    if (question.UserId !== userId) {
+      return res.status(403).json({ 
+        error: 'Vous n\'êtes pas autorisé à modifier cette question' 
+      });
+    }
+
+    // Validation des données
+    if (!title || !content) {
+      return res.status(400).json({ 
+        error: 'Le titre et le contenu sont obligatoires' 
+      });
     }
     
     await question.update({ 
       Title: title, 
-      Content: content 
+      Content: content,
+      CodeSnippet: codeSnippet || null
+    });
+
+    // Récupérer la question mise à jour avec les données utilisateur
+    const updatedQuestion = await Question.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'User',
+          attributes: ['Id', 'Username']
+        }
+      ]
     });
     
     res.status(200).json({
       message: 'Question mise à jour avec succès',
-      question
+      question: updatedQuestion
     });
   } catch (error) {
     console.error('Erreur dans updateQuestion:', error);
-    res.status(500).json({ error: 'Erreur lors de la mise à jour de la question' });
+    res.status(500).json({ 
+      error: 'Erreur lors de la mise à jour de la question',
+      details: error.message 
+    });
   }
 };
 
@@ -175,7 +240,9 @@ export const updateQuestion = async (req, res) => {
 export const deleteQuestion = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.Id; // CORRECTION
+    const userId = req.user.Id;
+
+    console.log('Suppression de la question:', { id, userId });
 
     const question = await Question.findByPk(id);
     
@@ -183,8 +250,11 @@ export const deleteQuestion = async (req, res) => {
       return res.status(404).json({ error: 'Question non trouvée' });
     }
     
-    if (question.UserId !== userId) { // CORRECTION : Utiliser UserId
-      return res.status(403).json({ error: 'Non autorisé à supprimer cette question' });
+    // VÉRIFICATION: Seul l'auteur peut supprimer
+    if (question.UserId !== userId) {
+      return res.status(403).json({ 
+        error: 'Vous n\'êtes pas autorisé à supprimer cette question' 
+      });
     }
     
     await question.destroy();
@@ -194,6 +264,9 @@ export const deleteQuestion = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur dans deleteQuestion:', error);
-    res.status(500).json({ error: 'Erreur lors de la suppression de la question' });
+    res.status(500).json({ 
+      error: 'Erreur lors de la suppression de la question',
+      details: error.message 
+    });
   }
 };

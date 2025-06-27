@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../hooks/useNotification';
 import voteService from '../services/voteService';
+import questionService from '../services/questionService';
+import EditQuestionModal from './EditQuestionModal';
 import '../css/QuestionCard.css';
 
-function QuestionCard({ question, isDetailView = false, onReplyClick }) {
+function QuestionCard({ question, isDetailView = false, onReplyClick, onQuestionUpdate, onQuestionDelete }) {
   const navigate = useNavigate();
-  const { isAuthenticated, getCurrentUserId } = useAuth();
+  const { isAuthenticated, getCurrentUserId } = useAuth(); // ENLEVER user d'ici aussi
   const { showSuccess, showError, showWarning } = useNotification();
   
   const [voteData, setVoteData] = useState({
@@ -16,6 +18,8 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
     userVote: null
   });
   const [isVoting, setIsVoting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Charger les données de votes au montage du composant
   useEffect(() => {
@@ -54,8 +58,23 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
   };
 
   const handleVote = async (voteType) => {
+    console.log('QuestionCard - handleVote appelé:', { voteType, isAuthenticated });
+    
+    // SIMPLIFIER la vérification d'authentification
     if (!isAuthenticated) {
+      console.log('QuestionCard - Utilisateur non authentifié');
       showWarning('Vous devez être connecté pour voter');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+
+    // VÉRIFICATION du token
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      console.log('QuestionCard - Pas de token disponible');
+      showWarning('Session expirée, veuillez vous reconnecter');
       setTimeout(() => {
         navigate('/login');
       }, 1500);
@@ -68,10 +87,13 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
     
     try {
       const questionId = question?.id || question?.Id;
+      console.log('QuestionCard - Tentative de vote pour question:', questionId);
+      
       const result = await voteService.voteQuestion(questionId, voteType);
       
+      console.log('QuestionCard - Résultat du vote:', result);
+      
       if (result.success) {
-        // Recharger les données pour avoir les vrais chiffres
         await loadVoteData();
         
         if (result.data.message === 'Vote annulé') {
@@ -82,10 +104,11 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
           showSuccess('Vote enregistré');
         }
       } else {
+        console.error('QuestionCard - Erreur de vote:', result.error);
         showError(result.error || 'Erreur lors du vote');
       }
     } catch (error) {
-      console.error('Erreur lors du vote:', error);
+      console.error('QuestionCard - Erreur lors du vote:', error);
       showError('Erreur lors du vote');
     } finally {
       setIsVoting(false);
@@ -107,6 +130,61 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
     }
   };
 
+  // NOUVELLE FONCTION: Vérifier si l'utilisateur est l'auteur
+  const isAuthor = () => {
+    if (!isAuthenticated) return false;
+    const currentUserId = getCurrentUserId();
+    const questionUserId = question?.UserId || question?.User?.Id;
+    return currentUserId === questionUserId;
+  };
+
+  // NOUVELLE FONCTION: Gérer l'édition
+  const handleEdit = () => {
+    setShowEditModal(true);
+  };
+
+  // NOUVELLE FONCTION: Gérer la suppression
+  const handleDelete = async () => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette question ? Cette action est irréversible.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      const questionId = question?.id || question?.Id;
+      const result = await questionService.deleteQuestion(questionId);
+      
+      if (result.success) {
+        showSuccess('Question supprimée avec succès');
+        
+        // Notifier le parent ou rediriger
+        if (onQuestionDelete) {
+          onQuestionDelete(questionId);
+        } else if (isDetailView) {
+          // Si on est sur la page de détail, rediriger vers l'accueil
+          navigate('/');
+        }
+      } else {
+        showError(result.error || 'Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      showError('Erreur lors de la suppression');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // NOUVELLE FONCTION: Gérer la mise à jour
+  const handleQuestionUpdate = (updatedQuestion) => {
+    setShowEditModal(false);
+    if (onQuestionUpdate) {
+      onQuestionUpdate(updatedQuestion);
+    }
+    showSuccess('Question mise à jour avec succès');
+  };
+
   return (
     <div className={`question-details ${isDetailView ? 'detail-view' : ''}`}>
       <div className="question-header">
@@ -120,6 +198,27 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
           <span className="question-date">
             {new Date(question.createdAt || question.CreatedAt).toLocaleDateString('fr-FR')}
           </span>
+          
+          {/* NOUVEAU: Actions pour l'auteur */}
+          {isAuthor() && (
+            <div className="question-author-actions">
+              <button 
+                className="edit-question-btn"
+                onClick={handleEdit}
+                title="Modifier la question"
+              >
+                ✏️ Modifier
+              </button>
+              <button 
+                className="delete-question-btn"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                title="Supprimer la question"
+              >
+                {isDeleting ? '⏳' : '🗑️'} Supprimer
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -131,7 +230,7 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
           </p>
         </div>
         
-        {/* Code snippet - MÊME APPROCHE QU'ANSWERCARD */}
+        {/* Code snippet */}
         {(question.CodeSnippet || question.codeSnippet) && (
           <div className="question-code-section">
             <div className="code-header">
@@ -180,6 +279,15 @@ function QuestionCard({ question, isDetailView = false, onReplyClick }) {
           </div>
         </div>
       </div>
+
+      {/* NOUVEAU: Modal d'édition */}
+      {showEditModal && (
+        <EditQuestionModal 
+          question={question}
+          onSave={handleQuestionUpdate}
+          onCancel={() => setShowEditModal(false)}
+        />
+      )}
     </div>
   );
 }

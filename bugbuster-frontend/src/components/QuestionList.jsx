@@ -66,7 +66,8 @@ function QuestionList({
       Content: 'Je rencontre une erreur de syntaxe...',
       CodeSnippet: 'console.log("Hello World");',
       CreatedAt: new Date().toISOString(),
-      User: { Username: 'John Doe' } // CORRECTION : Username au lieu d'email
+      User: { Username: 'John Doe' },
+      stats: { answerCount: 3, upvotes: 5, downvotes: 1, score: 4, hasAcceptedAnswer: true }
     },
     { 
       Id: 2,
@@ -74,7 +75,8 @@ function QuestionList({
       Content: 'J\'ai un problème avec useState...',
       CodeSnippet: 'const [count, setCount] = useState(0);',
       CreatedAt: new Date().toISOString(),
-      User: { Username: 'Jane Smith' } // CORRECTION : Username
+      User: { Username: 'Jane Smith' },
+      stats: { answerCount: 1, upvotes: 2, downvotes: 0, score: 2, hasAcceptedAnswer: false }
     },
     { 
       Id: 3,
@@ -82,7 +84,8 @@ function QuestionList({
       Content: 'Comment optimiser une requête SQL lente ?',
       CodeSnippet: 'SELECT * FROM users WHERE active = 1;',
       CreatedAt: new Date().toISOString(),
-      User: { Username: 'Bob Wilson' } // CORRECTION : Username
+      User: { Username: 'Bob Wilson' },
+      stats: { answerCount: 0, upvotes: 1, downvotes: 0, score: 1, hasAcceptedAnswer: false }
     }
   ];
 
@@ -123,7 +126,7 @@ function QuestionList({
                     {(question.Content || question.content).length > 150 ? '...' : ''}
                   </p>
                   
-                  {/* Code snippet preview - MÊME APPROCHE QU'ANSWERCARD */}
+                  {/* Code snippet preview */}
                   {(question.CodeSnippet || question.codeSnippet) && (
                     <div className="question-code-preview">
                       <div className="code-preview-header">
@@ -135,10 +138,31 @@ function QuestionList({
                       </pre>
                     </div>
                   )}
+
+                  {/* NOUVEAU: Statistiques de la question */}
+                  <div className="question-stats">
+                    <div className="stat-item votes">
+                      <span className="stat-value">
+                        {question.stats?.score || 0}
+                      </span>
+                      <span className="stat-label">votes</span>
+                    </div>
+                    <div className="stat-item answers">
+                      <span className="stat-value">
+                        {question.stats?.answerCount || 0}
+                      </span>
+                      <span className="stat-label">réponses</span>
+                    </div>
+                    {question.stats?.hasAcceptedAnswer && (
+                      <div className="stat-item accepted">
+                        <span className="accepted-icon">✓</span>
+                        <span className="stat-label">résolu</span>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="question-metadata">
                     <span className="question-author">
-                      {/* CORRECTION : Utiliser Username */}
                       Par {question.User?.Username || question.author || 'Utilisateur anonyme'}
                     </span>
                     <span className="question-date">
@@ -184,7 +208,7 @@ function QuestionList({
                       {(question.Content || question.content).length > 150 ? '...' : ''}
                     </p>
                     
-                    {/* Code snippet preview - MÊME APPROCHE QU'ANSWERCARD */}
+                    {/* Code snippet preview */}
                     {(question.CodeSnippet || question.codeSnippet) && (
                       <div className="question-code-preview">
                         <div className="code-preview-header">
@@ -196,6 +220,28 @@ function QuestionList({
                         </pre>
                       </div>
                     )}
+
+                    {/* NOUVEAU: Statistiques de la question */}
+                    <div className="question-stats">
+                      <div className="stat-item votes">
+                        <span className="stat-value">
+                          {question.stats?.score || 0}
+                        </span>
+                        <span className="stat-label">votes</span>
+                      </div>
+                      <div className="stat-item answers">
+                        <span className="stat-value">
+                          {question.stats?.answerCount || 0}
+                        </span>
+                        <span className="stat-label">réponses</span>
+                      </div>
+                      {question.stats?.hasAcceptedAnswer && (
+                        <div className="stat-item accepted">
+                          <span className="accepted-icon">✓</span>
+                          <span className="stat-label">résolu</span>
+                        </div>
+                      )}
+                    </div>
                     
                     <div className="question-metadata">
                       <span className="question-author">
