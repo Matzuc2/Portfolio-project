@@ -1,2 +1,4 @@
 node_modules/
 ./bugbuster-backend/node_modulesnode_modules/
+bugbuster-backend/.env
+bugbuster-backend/.env
