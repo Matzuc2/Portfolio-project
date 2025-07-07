@@ -25,10 +25,9 @@ function FilterSidebar({ onFiltersChange, initialFilters = {} }) {
   const [loading, setLoading] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     searchType: true,
-    tags: true,
-    sort: true,
-    date: false,
-    activity: false
+    tags: false,
+    status: true,
+    sort: false // Maintenant expandable comme les autres
   });
 
   // Charger les tags depuis la base de données
@@ -112,17 +111,19 @@ function FilterSidebar({ onFiltersChange, initialFilters = {} }) {
   };
 
   const clearAllFilters = () => {
-    setFilters({
+    const clearedFilters = {
       searchType: 'all',
       tags: [],
       sortBy: 'newest',
       dateFrom: '',
       dateTo: '',
-      hasAnswers: false,
-      noAnswers: false,
-      isResolved: false
-    });
+      hasAnswers: undefined,
+      isResolved: undefined
+    };
+    
+    setFilters(clearedFilters);
     setTagSearchQuery('');
+    setShowTagSuggestions(false);
   };
 
   const toggleSection = (sectionKey) => {
@@ -134,11 +135,26 @@ function FilterSidebar({ onFiltersChange, initialFilters = {} }) {
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.searchType !== 'all') count++;
-    count += filters.tags.length;
-    if (filters.sortBy !== 'newest') count++;
-    if (filters.dateFrom || filters.dateTo) count++;
-    if (filters.hasAnswers || filters.noAnswers || filters.isResolved) count++;
+    
+    // Type de recherche (si différent de 'all')
+    if (filters.searchType && filters.searchType !== 'all') count++;
+    
+    // Tags
+    if (filters.tags && filters.tags.length > 0) count += filters.tags.length;
+    
+    // Statut de résolution
+    if (filters.isResolved !== undefined) count++;
+    
+    // Nombre de réponses
+    if (filters.hasAnswers !== undefined) count++;
+    
+    // Tri (si différent de 'newest')
+    if (filters.sortBy && filters.sortBy !== 'newest') count++;
+    
+    // Dates
+    if (filters.dateFrom) count++;
+    if (filters.dateTo) count++;
+    
     return count;
   };
 
@@ -284,68 +300,138 @@ function FilterSidebar({ onFiltersChange, initialFilters = {} }) {
         )}
       </div>
 
-      {/* NOUVEAU: Filtre par statut */}
+      {/* Statut des questions */}
       <div className="filter-section">
-        <div className="filter-section-header">
-          <h4 className="filter-section-title">Statut</h4>
-        </div>
-        <div className="filter-section-content">
-          <div className="activity-options">
-            <div className="activity-option">
-              <input
-                type="checkbox"
-                id="is-resolved"
-                checked={filters.isResolved === true}
-                onChange={(e) => handleFilterChange('isResolved', e.target.checked ? true : undefined)}
-              />
-              <label htmlFor="is-resolved" className="activity-option-label">
-                ✓ Résolu (avec réponse acceptée)
-              </label>
-            </div>
-            <div className="activity-option">
-              <input
-                type="checkbox"
-                id="has-answers"
-                checked={filters.hasAnswers === true}
-                onChange={(e) => handleFilterChange('hasAnswers', e.target.checked ? true : undefined)}
-              />
-              <label htmlFor="has-answers" className="activity-option-label">
-                💬 A des réponses
-              </label>
-            </div>
-            <div className="activity-option">
-              <input
-                type="checkbox"
-                id="no-answers"
-                checked={filters.hasAnswers === false}
-                onChange={(e) => handleFilterChange('hasAnswers', e.target.checked ? false : undefined)}
-              />
-              <label htmlFor="no-answers" className="activity-option-label">
-                ❓ Sans réponse
-              </label>
+        <button
+          className="filter-section-header"
+          onClick={() => toggleSection('status')}
+        >
+          Statut des questions
+          <span className={`expand-icon ${expandedSections.status ? 'expanded' : ''}`}>
+            ▼
+          </span>
+        </button>
+        {expandedSections.status && (
+          <div className="filter-section-content">
+            <div className="activity-options">
+              <div className="activity-option">
+                <input
+                  type="checkbox"
+                  id="is-resolved"
+                  checked={filters.isResolved === true}
+                  onChange={(e) => handleFilterChange('isResolved', e.target.checked ? true : undefined)}
+                />
+                <label htmlFor="is-resolved" className="activity-option-label">
+                  ✅ Résolu (avec réponse acceptée)
+                </label>
+              </div>
+              <div className="activity-option">
+                <input
+                  type="checkbox"
+                  id="not-resolved"
+                  checked={filters.isResolved === false}
+                  onChange={(e) => handleFilterChange('isResolved', e.target.checked ? false : undefined)}
+                />
+                <label htmlFor="not-resolved" className="activity-option-label">
+                  ❌ Non résolu
+                </label>
+              </div>
+              <div className="activity-option">
+                <input
+                  type="checkbox"
+                  id="has-answers"
+                  checked={filters.hasAnswers === true}
+                  onChange={(e) => handleFilterChange('hasAnswers', e.target.checked ? true : undefined)}
+                />
+                <label htmlFor="has-answers" className="activity-option-label">
+                  💬 A des réponses
+                </label>
+              </div>
+              <div className="activity-option">
+                <input
+                  type="checkbox"
+                  id="no-answers"
+                  checked={filters.hasAnswers === false}
+                  onChange={(e) => handleFilterChange('hasAnswers', e.target.checked ? false : undefined)}
+                />
+                <label htmlFor="no-answers" className="activity-option-label">
+                  ❓ Sans réponse
+                </label>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Tri */}
       <div className="filter-section">
-        <div className="filter-section-header">
-          <h4 className="filter-section-title">Trier par</h4>
-        </div>
-        <div className="filter-section-content">
-          <select 
-            value={filters.sortBy || 'newest'} 
-            onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="sort-select"
-          >
-            <option value="newest">Plus récent</option>
-            <option value="oldest">Plus ancien</option>
-            <option value="most-votes">Plus de votes</option>
-            <option value="most-answers">Plus de réponses</option>
-            <option value="unanswered">Sans réponse</option>
-          </select>
-        </div>
+        <button
+          className="filter-section-header"
+          onClick={() => toggleSection('sort')}
+        >
+          Trier par
+          <span className={`expand-icon ${expandedSections.sort ? 'expanded' : ''}`}>
+            ▼
+          </span>
+        </button>
+        {expandedSections.sort && (
+          <div className="filter-section-content">
+            <div className="sort-options">
+              <div className="sort-option">
+                <input
+                  type="radio"
+                  id="sort-newest"
+                  name="sortBy"
+                  value="newest"
+                  checked={filters.sortBy === 'newest'}
+                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                />
+                <label htmlFor="sort-newest" className="sort-option-label">
+                  🕐 Plus récent
+                </label>
+              </div>
+              <div className="sort-option">
+                <input
+                  type="radio"
+                  id="sort-oldest"
+                  name="sortBy"
+                  value="oldest"
+                  checked={filters.sortBy === 'oldest'}
+                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                />
+                <label htmlFor="sort-oldest" className="sort-option-label">
+                  🕑 Plus ancien
+                </label>
+              </div>
+              <div className="sort-option">
+                <input
+                  type="radio"
+                  id="sort-most-votes"
+                  name="sortBy"
+                  value="most-votes"
+                  checked={filters.sortBy === 'most-votes'}
+                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                />
+                <label htmlFor="sort-most-votes" className="sort-option-label">
+                  👍 Plus de votes
+                </label>
+              </div>
+              <div className="sort-option">
+                <input
+                  type="radio"
+                  id="sort-most-answers"
+                  name="sortBy"
+                  value="most-answers"
+                  checked={filters.sortBy === 'most-answers'}
+                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                />
+                <label htmlFor="sort-most-answers" className="sort-option-label">
+                  💬 Plus de réponses
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Date */}
@@ -354,83 +440,37 @@ function FilterSidebar({ onFiltersChange, initialFilters = {} }) {
           className="filter-section-header"
           onClick={() => toggleSection('date')}
         >
-          Date
+          Dates
           <span className={`expand-icon ${expandedSections.date ? 'expanded' : ''}`}>
             ▼
           </span>
         </button>
         {expandedSections.date && (
           <div className="filter-section-content">
-            <div className="date-filter">
-              <div>
-                <label className="filter-option-label">Du :</label>
+            <div className="date-filters">
+              <div className="date-filter">
+                <label htmlFor="date-from" className="date-filter-label">
+                  Date de début :
+                </label>
                 <input
                   type="date"
+                  id="date-from"
                   value={filters.dateFrom}
                   onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                  className="date-input"
+                  className="date-filter-input"
                 />
               </div>
-              <div>
-                <label className="filter-option-label">Au :</label>
+              <div className="date-filter">
+                <label htmlFor="date-to" className="date-filter-label">
+                  Date de fin :
+                </label>
                 <input
                   type="date"
+                  id="date-to"
                   value={filters.dateTo}
                   onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                  className="date-input"
+                  className="date-filter-input"
                 />
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Activité */}
-      <div className="filter-section">
-        <button
-          className="filter-section-header"
-          onClick={() => toggleSection('activity')}
-        >
-          Activité
-          <span className={`expand-icon ${expandedSections.activity ? 'expanded' : ''}`}>
-            ▼
-          </span>
-        </button>
-        {expandedSections.activity && (
-          <div className="filter-section-content">
-            <div className="activity-filter">
-              <div className="activity-option">
-                <input
-                  type="checkbox"
-                  id="has-answers"
-                  checked={filters.hasAnswers}
-                  onChange={(e) => handleFilterChange('hasAnswers', e.target.checked)}
-                />
-                <label htmlFor="has-answers" className="activity-option-label">
-                  A des réponses
-                </label>
-              </div>
-              <div className="activity-option">
-                <input
-                  type="checkbox"
-                  id="no-answers"
-                  checked={filters.noAnswers}
-                  onChange={(e) => handleFilterChange('noAnswers', e.target.checked)}
-                />
-                <label htmlFor="no-answers" className="activity-option-label">
-                  Sans réponse
-                </label>
-              </div>
-              <div className="activity-option">
-                <input
-                  type="checkbox"
-                  id="is-resolved"
-                  checked={filters.isResolved}
-                  onChange={(e) => handleFilterChange('isResolved', e.target.checked)}
-                />
-                <label htmlFor="is-resolved" className="activity-option-label">
-                  Résolu
-                </label>
               </div>
             </div>
           </div>

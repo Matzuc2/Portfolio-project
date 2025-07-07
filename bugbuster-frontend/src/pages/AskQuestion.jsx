@@ -46,18 +46,17 @@ function AskQuestion() {
       console.log('=== DEBUGGING ASKQUESTION ===');
       console.log('Données du formulaire reçues:', formData);
       
-      // CORRECTION : Mapper correctement selon ce que le service attend
+      // VÉRIFICATION : S'assurer que les tags sont présents
       const questionPayload = {
         title: formData.title.trim(),
-        description: formData.description.trim(), // Le service lit questionData.description
-        codeSnippet: formData.content ? formData.content.trim() : null, // Le service lit questionData.codeSnippet
-        tags: formData.tags || []
+        description: formData.description.trim(),
+        codeSnippet: formData.content ? formData.content.trim() : null,
+        tags: formData.tags || [] // IMPORTANT : Inclure les tags
       };
 
-      console.log('=== PAYLOAD PRÉPARÉ ===');
+      console.log('=== PAYLOAD AVEC TAGS ===');
       console.log('questionPayload:', questionPayload);
-      console.log('questionPayload.description:', questionPayload.description);
-      console.log('questionPayload.codeSnippet:', questionPayload.codeSnippet);
+      console.log('Tags à envoyer:', questionPayload.tags);
 
       // Appeler le service pour créer la question
       const result = await questionService.createQuestion(questionPayload);
@@ -65,8 +64,8 @@ function AskQuestion() {
       if (result.success) {
         showSuccess('Question publiée avec succès !');
         
-        // Rediriger vers la page de la question créée ou vers l'accueil
-        if (result.data.question?.Id) {
+        // Rediriger vers la question créée
+        if (result.data?.question?.Id) {
           navigate(`/question/${result.data.question.Id}`);
         } else {
           navigate('/');
@@ -75,8 +74,8 @@ function AskQuestion() {
         showError(result.error || 'Erreur lors de la publication de la question');
       }
     } catch (error) {
-      console.error('Erreur lors de la création de la question:', error);
-      showError('Erreur de connexion au serveur');
+      console.error('Erreur lors de la soumission:', error);
+      showError('Erreur lors de la publication de la question');
     } finally {
       setIsSubmitting(false);
     }

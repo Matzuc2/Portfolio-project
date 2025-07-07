@@ -263,8 +263,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   border-radius: 4px;
   transition: background 0.2s ease;
 }
@@ -283,6 +282,12 @@
   font-size: 14px;
   color: #ccc;
   cursor: pointer;
+  flex: 1;
+}
+
+.sort-option input[type="radio"]:checked + .sort-option-label {
+  color: #de59e5;
+  font-weight: bold;
 }
 
 /* Options de date */
@@ -345,6 +350,12 @@
   font-size: 14px;
   color: #ccc;
   cursor: pointer;
+  flex: 1;
+}
+
+.activity-option input[type="checkbox"]:checked + .activity-option-label {
+  color: #de59e5;
+  font-weight: bold;
 }
 
 /* Indicateur de chargement */

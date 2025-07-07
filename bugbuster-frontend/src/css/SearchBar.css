@@ -1,16 +1,22 @@
+/* bugbuster-frontend/src/css/SearchBar.css */
+
 /* Conteneur principal de la barre de recherche */
 .search-bar-container {
   display: flex;
   justify-content: center;
   padding: 20px;
   margin-bottom: 30px;
+  position: relative;
+  width: 100%;
 }
 
 /* Formulaire de recherche */
 .search-form {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  position: relative;
 }
 
 /* Wrapper de l'input de recherche */
@@ -22,10 +28,11 @@
   box-shadow: 0 0 20px #020202, 0 0 40px #6a0dad;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
-  display: flex; /* AJOUT IMPORTANT - c'était manquant ! */
+  display: flex;
   align-items: center;
   width: 100%;
-  max-width: 900px; /* Ajustez cette valeur selon vos besoins */
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .search-input-wrapper:focus-within {
@@ -66,6 +73,7 @@
   margin-right: 10px;
   font-size: 16px;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .clear-btn:hover {
@@ -86,24 +94,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.search-btn:hover {
+.search-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #6a0dad, #3a0ca3);
   transform: scale(1.05);
   box-shadow: 0 0 15px #8a2be2;
 }
 
-/* Responsive - pour ajuster la largeur selon l'écran */
-@media (max-width: 1200px) {
-  .search-input-wrapper {
-    max-width: 700px;
-  }
+/* NOUVEAU: État désactivé */
+.search-btn:disabled {
+  background: rgba(138, 43, 226, 0.3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
+  .search-bar-container {
+    padding: 15px;
+  }
+  
   .search-input-wrapper {
-    max-width: 90%; /* Utilise pourcentage sur tablette */
+    max-width: 100%;
   }
   
   .search-input {
@@ -118,8 +133,8 @@
 }
 
 @media (max-width: 480px) {
-  .search-input-wrapper {
-    max-width: 95%; /* Encore plus large sur mobile */
+  .search-bar-container {
+    padding: 10px;
   }
   
   .search-input {
@@ -133,8 +148,9 @@
   }
   
   .clear-btn {
-    width: 25px;
-    height: 25px;
+    width: 26px;
+    height: 26px;
     font-size: 14px;
+    margin-right: 8px;
   }
 }

@@ -153,7 +153,7 @@ body {
 .no-results-suggestions {
   text-align: left;
   max-width: 400px;
-  margin: 0 auto;
+  margin: 0 auto 30px auto;
 }
 
 .no-results-suggestions h4 {
@@ -174,6 +174,142 @@ body {
 .no-results-suggestions li {
   margin-bottom: 8px;
   line-height: 1.4;
+}
+
+.back-to-home-btn {
+  background: linear-gradient(135deg, #8a2be2, #6a0dad);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-to-home-btn:hover {
+  background: linear-gradient(135deg, #6a0dad, #3a0ca3);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #8a2be2;
+}
+
+/* Améliorer la section de tri pour qu'elle soit cohérente */
+.sort-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sort-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.sort-option:hover {
+  background: rgba(138, 43, 226, 0.1);
+}
+
+.sort-option input[type="radio"] {
+  margin: 0;
+  accent-color: #8a2be2;
+  cursor: pointer;
+}
+
+.sort-option-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #ccc;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s ease;
+}
+
+.sort-option input[type="radio"]:checked + .sort-option-label {
+  color: #de59e5;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(222, 89, 229, 0.3);
+}
+
+/* Améliorer les options d'activité/statut pour la cohérence */
+.activity-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.activity-option:hover {
+  background: rgba(138, 43, 226, 0.1);
+}
+
+.activity-option input[type="checkbox"] {
+  margin: 0;
+  accent-color: #8a2be2;
+  cursor: pointer;
+}
+
+.activity-option-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #ccc;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s ease;
+}
+
+.activity-option input[type="checkbox"]:checked + .activity-option-label {
+  color: #de59e5;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(222, 89, 229, 0.3);
+}
+
+/* Indicateur visuel pour les sections avec filtres actifs */
+.filter-section.has-active-filters .filter-section-header {
+  background: rgba(138, 43, 226, 0.4);
+  border-left: 3px solid #8a2be2;
+}
+
+.filter-section.has-active-filters .filter-section-header::after {
+  content: " ●";
+  color: #de59e5;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+/* Animation pour le déploiement des sections */
+.filter-section-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+/* Améliorer le style des radio buttons et checkboxes */
+.sort-option input[type="radio"],
+.activity-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+/* Focus states pour l'accessibilité */
+.sort-option input[type="radio"]:focus,
+.activity-option input[type="checkbox"]:focus {
+  outline: 2px solid #8a2be2;
+  outline-offset: 2px;
 }
 
 /* Responsive - Tablettes */

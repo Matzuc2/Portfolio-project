@@ -1,6 +1,6 @@
-import sequelize from '../config/db.js';
 import { DataTypes } from 'sequelize';
 import BaseModel from './base.model.js';
+import sequelize from '../config/db.js';
 
 class Tag extends BaseModel {}
 
@@ -10,8 +10,6 @@ Tag.init({
     allowNull: false,
     unique: true
   }
-  // The id, createdAt, updatedAt, and deletedAt fields
-  // will be automatically added by the BaseModel
 }, {
   sequelize,
   modelName: 'Tag',

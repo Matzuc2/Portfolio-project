@@ -11,16 +11,17 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question...", initi
   }, [initialValue]);
 
   const handleInputChange = (e) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
     if (onSearch) {
-      onSearch(e.target.value);
+      onSearch(value); // Recherche dynamique dans QuestionList
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // CORRECTION: La loupe navigue vers SearchResults
     if (searchTerm.trim()) {
-      // NOUVEAU : Toujours rediriger vers SearchResults au lieu de rester sur Home
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
@@ -33,33 +34,39 @@ function SearchBar({ onSearch, placeholder = "Rechercher une question...", initi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="search-form">
-      <div className="search-input-wrapper">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-          className="search-input"
-          title="Rechercher dans toutes les questions"
-        />
-        {searchTerm && (
-          <button
-            type="button"
-            onClick={clearSearch}
-            className="clear-btn"
+    <div className="search-bar-container">
+      <form onSubmit={handleSubmit} className="search-form">
+        <div className="search-input-wrapper">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleInputChange}
+            placeholder={placeholder}
+            className="search-input"
+            autoComplete="off"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="clear-btn"
+              aria-label="Effacer la recherche"
+            >
+              ✕
+            </button>
+          )}
+          <button 
+            type="submit" 
+            className="search-btn"
+            aria-label="Rechercher"
+            title="Voir tous les résultats"
+            disabled={!searchTerm.trim()}
           >
-            ✕
+            🔍
           </button>
-        )}
-        <button type="submit" className="search-btn">
-          🔍
-        </button>
-      </div>
-      <small className="search-tip">
-        💡 Tip : Appuyez sur Entrée ou cliquez sur la loupe pour rechercher
-      </small>
-    </form>
+        </div>
+      </form>
+    </div>
   );
 }
 

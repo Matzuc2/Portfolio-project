@@ -79,13 +79,14 @@ const questionService = {
       console.log('questionService - Données reçues:', questionData);
       
       const payload = {
-        title: questionData.title,           // ✅ questionData.title existe
-        content: questionData.description,   // ✅ questionData.description existe maintenant
-        codeSnippet: questionData.codeSnippet, // ✅ questionData.codeSnippet existe maintenant  
-        tags: questionData.tags || []
+        title: questionData.title,
+        content: questionData.description,   // Le contenu de la question
+        codeSnippet: questionData.codeSnippet,
+        tags: questionData.tags || []        // IMPORTANT : Envoyer les tags
       };
       
       console.log('questionService - Payload envoyé:', payload);
+      console.log('questionService - Tags envoyés:', payload.tags);
       
       const response = await api.post('/questions', payload);
       return {

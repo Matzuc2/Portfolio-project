@@ -78,7 +78,7 @@ export const register = async (req, res) => {
     const token = jwt.sign(
       { id: user.Id, Username: user.Username },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '2h' }
     );
     
     res.status(201).json({
@@ -133,7 +133,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: user.Id, email: user.Email },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '2h' }
     );
 
     console.log('Connexion réussie pour:', user.Username);
