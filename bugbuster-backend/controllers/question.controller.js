@@ -19,7 +19,7 @@ export const getQuestionById = async (req, res) => {
         {
           model: Tag,
           as: 'Tags',
-          attributes: ['Id', 'name'], // CORRECTION : 'name' en minuscule
+          attributes: ['Id', 'name'],
           through: { attributes: [] }
         }
       ]

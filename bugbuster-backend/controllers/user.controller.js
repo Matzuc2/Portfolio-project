@@ -43,8 +43,6 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
     
-    // Vous pouvez ajouter des vérifications pour s'assurer que l'utilisateur 
-    // connecté est autorisé à modifier cet utilisateur
     
     await user.update({ username, email });
     
@@ -91,7 +89,7 @@ export const getUserQuestions = async (req, res) => {
     const { id } = req.params;
     
     const user = await User.findByPk(id, {
-      include: 'Questions' // Assurez-vous que l'association est correctement définie
+      include: 'Questions'
     });
     
     if (!user) {

@@ -5,7 +5,7 @@ import sequelize from '../config/db.js';
 class Question extends BaseModel {}
 
 Question.init({
-  // Ordre exact selon votre table
+  // Ordre exact selon table
   Title: {                    // 5ème colonne
     type: DataTypes.STRING,
     allowNull: false

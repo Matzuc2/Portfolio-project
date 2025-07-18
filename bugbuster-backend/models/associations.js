@@ -14,7 +14,7 @@ Question.belongsTo(User, { foreignKey: 'UserId', as: 'User' });
 Question.hasMany(Answer, { foreignKey: 'QuestionId', as: 'Answers' });
 Question.hasMany(Vote, { foreignKey: 'QuestionId', as: 'Votes' });
 
-// ASSOCIATIONS TAGS - CRITIQUES
+// ASSOCIATIONS TAGS
 Question.belongsToMany(Tag, {
   through: 'QuestionTags',
   foreignKey: 'QuestionId',

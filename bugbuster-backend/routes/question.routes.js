@@ -12,7 +12,7 @@ import { authenticate } from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 // Routes publiques
-router.get('/', getAllQuestions); // ADD THIS ROUTE
+router.get('/', getAllQuestions); // ADDED THIS ROUTE
 router.get('/:id', getQuestionById);
 router.get('/:questionId/answers', getAnswersByQuestionId);
 
